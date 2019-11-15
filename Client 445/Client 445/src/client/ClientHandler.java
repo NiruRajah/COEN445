@@ -124,12 +124,13 @@ public class ClientHandler
 					System.out.println("Enter all the attending participant's ip addresses and then press 8 when done");
 					ip = sc1.nextLine();
 					if(!(ip.equals("8")))
-					System.out.println("added: " + InetAddress.getByName(ip));
-					list1.add(InetAddress.getByName(ip));
+					{
+						System.out.println("added: " + InetAddress.getByName(ip));
+						list1.add(InetAddress.getByName(ip));
+					}
 				}
 				System.out.println("Enter the topic");
 				topic = sc1.nextLine();
-				list1.remove(InetAddress.getByName(ip));
 				RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic);
 				Object obj = (Object) requestMsg;
 				test(obj);
