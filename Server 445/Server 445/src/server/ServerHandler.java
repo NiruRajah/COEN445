@@ -16,7 +16,6 @@ import Rooms.*;
 public class ServerHandler 
 //this class is responsible for deciding when to send/receive the correct messages for Servers
 {
-
 	private Server server;
 	private int mT;
 	private ArrayList<Meetings> meetingsArray = new ArrayList<Meetings>();
