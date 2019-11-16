@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import data.Packet;
 import data.PacketHandler;
@@ -21,10 +22,10 @@ public class ServerHandler
 	private ArrayList<Meetings> meetingsArray = new ArrayList<Meetings>();
 	private Room room;
 	
-	public synchronized void test() throws IOException //receiving and testing all messages
+	public synchronized void test(int port) throws IOException //receiving and testing all messages
 	{
 		mT = 0;
-		server = new Server(1337);
+		server = new Server(port);
 		room = new Room();
 		server.receive(new PacketHandler() 
 		{
@@ -152,6 +153,7 @@ public class ServerHandler
 					// if minimum is higher than accept counter, resend invite to declined list of participants
 					if(meetingsArray.get(i).getMinimum() > meetingsArray.get(i).getAcceptCounter())
 					{
+						boolean checkDeclined = false;
 						InviteMessage inviteMsg = new InviteMessage(meetingsArray.get(i).getmT(), 
 								meetingsArray.get(i).getDate(), 
 								meetingsArray.get(i).getTime(), 
@@ -159,9 +161,27 @@ public class ServerHandler
 								meetingsArray.get(i).getRequester());
 						for(int j = 0; j < meetingsArray.get(i).getDeclinedClients().size(); j++)
 						{
-							sendToClient(new Packet(convertToBytes(inviteMsg),
-									meetingsArray.get(i).getDeclinedClients().get(j), 
-									packet.getPort()));
+							if(!(meetingsArray.get(i).getDeclinedClients().get(j).equals(packet.getAddr())))
+							{
+								sendToClient(new Packet(convertToBytes(inviteMsg),
+										meetingsArray.get(i).getDeclinedClients().get(j), 
+										packet.getPort()));
+								checkDeclined = true;
+							}
+						}
+						if(!checkDeclined)
+						{
+							CancelMessage cancelMsg = new CancelMessage(withdrawMsg.getmTNumber(), 
+									("Accepted participants are lower than required minimum "), 
+										meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
+							for(int j = 0; j < meetingsArray.get(i).getConfirmedClients().size(); j++)
+							{
+									sendToClient(new Packet(convertToBytes(cancelMsg),
+											meetingsArray.get(i).getConfirmedClients().get(j), packet.getPort()));
+							}
+							sendToClient(new Packet(convertToBytes(cancelMsg),
+									meetingsArray.get(i).getRequester(), packet.getPort()));
+							meetingsArray.remove(i);
 						}
 					}
 					checkX = false;
@@ -604,8 +624,11 @@ public class ServerHandler
 	//calls the test function
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter the Port Number");
+		int port = scan.nextInt();
 		ServerHandler s1 = new ServerHandler();
-		s1.test();
+		s1.test(port);
     }
 
 	

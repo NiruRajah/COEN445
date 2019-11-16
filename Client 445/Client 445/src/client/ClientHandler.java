@@ -36,10 +36,13 @@ public class ClientHandler
 	private Client client;
 	private boolean[][][] meetingAvailability = new boolean [100][7][24];
 	
+	public ClientHandler(String inp1, int inp2)
+	{
+		this.client = new Client(inp1, inp2);
+	}
+	
 	public synchronized void test(Object object) throws IOException 
 	{
-		client = new Client("127.0.0.9", 1337);
-		
 		for (int i = 0; i < 100; i++) //set the meeting availability scheduler to all true (available)
 		{
 			for (int j = 0; j < 7; j++)
@@ -361,7 +364,13 @@ public class ClientHandler
 	//calling the runner function for testing the server
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
-		ClientHandler c1 = new ClientHandler();
+
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Enter your IP Address");
+		String input1 = scan.nextLine();
+		System.out.println("Enter the Port Number");
+		int input2 = scan.nextInt();
+		ClientHandler c1 = new ClientHandler(input1, input2);
 		c1.runner();
 		Thread.sleep(2000);
 		c1.runner();
