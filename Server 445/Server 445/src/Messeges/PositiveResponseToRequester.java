@@ -10,18 +10,23 @@ public class PositiveResponseToRequester implements Serializable
 	private int mTNumber;
 	private String roomNumber;
 	private ArrayList<InetAddress> confirmedParticipants;
+	private int date;
+	private int time;
 	
 	public PositiveResponseToRequester()
 	{
 		
 	}
 	
-	public PositiveResponseToRequester(int rQ, int mT, String rN, ArrayList<InetAddress> confirmedClients) 
+	public PositiveResponseToRequester(int rQ, int mT, String rN, ArrayList<InetAddress> confirmedClients,
+			int date, int time) 
 	{
 		this.rQNumber = rQ;
 		this.mTNumber = mT;
 		this.roomNumber = rN;
 		this.confirmedParticipants = confirmedClients;
+		this.setDate(date);
+		this.setTime(time);
 	}
 
 	public int getrQNumber() {
@@ -71,6 +76,22 @@ public class PositiveResponseToRequester implements Serializable
 		    System.out.print(number + " | ");
 		}
 		
+	}
+
+	public int getDate() {
+		return date;
+	}
+
+	public void setDate(int date) {
+		this.date = date;
+	}
+
+	public int getTime() {
+		return time;
+	}
+
+	public void setTime(int time) {
+		this.time = time;
 	}
 	
 

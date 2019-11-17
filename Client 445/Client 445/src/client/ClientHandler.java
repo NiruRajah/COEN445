@@ -39,10 +39,6 @@ public class ClientHandler
 	public ClientHandler(String inp1, int inp2)
 	{
 		this.client = new Client(inp1, inp2);
-	}
-	
-	public synchronized void test(Object object) throws IOException 
-	{
 		for (int i = 0; i < 100; i++) //set the meeting availability scheduler to all true (available)
 		{
 			for (int j = 0; j < 7; j++)
@@ -53,6 +49,11 @@ public class ClientHandler
 				}
 			}
 		}
+	}
+	
+	public synchronized void test() throws IOException 
+	{
+		
 		
 		client.receive(new PacketHandler() 
 		{
@@ -75,8 +76,13 @@ public class ClientHandler
 			}
 			
 		});
-		client.send(convertToBytes(object));
+		
 		//runner();
+	}
+	
+	public synchronized void sentToServer(Object object) throws IOException
+	{
+		client.send(convertToBytes(object));
 	}
 	
 	public synchronized void runner() throws IOException
@@ -136,7 +142,7 @@ public class ClientHandler
 				topic = sc1.nextLine();
 				RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic);
 				Object obj = (Object) requestMsg;
-				test(obj);
+				sentToServer(obj);
 				break;
 				
 			}
@@ -148,7 +154,7 @@ public class ClientHandler
 				inpx = sc.nextInt();
 				CancelMessageFromRequester cancelMsg = new CancelMessageFromRequester(inpx);
 				Object obj = (Object) cancelMsg;
-				test(obj);
+				sentToServer(obj);
 				break;
 			}
 			else if(inp == 3)
@@ -158,7 +164,7 @@ public class ClientHandler
 				inpx = sc.nextInt();
 				WithdrawMessage withdrawMsg = new WithdrawMessage(inpx);
 				Object obj = (Object) withdrawMsg;
-				test(obj);
+				sentToServer(obj);
 				break;
 			}
 			else if(inp == 4)
@@ -168,7 +174,7 @@ public class ClientHandler
 				inpx = sc.nextInt();
 				AddClient addMsg = new AddClient(inpx);
 				Object obj = (Object) addMsg;
-				test(obj);
+				sentToServer(obj);
 				break;
 			}
 			else if(inp == 5)
@@ -183,7 +189,7 @@ public class ClientHandler
 				roomNumber = sc2.nextLine();
 				RoomChangeMessage roomMsg = new RoomChangeMessage(inpx, roomNumber);
 				Object obj = (Object) roomMsg;
-				test(obj);
+				sentToServer(obj);
 				break;
 			}
 			// break the loop if user enters "bye" 
@@ -196,7 +202,7 @@ public class ClientHandler
 	
 	}
 	
-	//checks to see if any messages were cancelled and if so, updates the client's schedule to available
+	//checks to see if any meetings were cancelled and if so, updates the client's schedule to available
 	public synchronized void checkForNegativeResponseToRequester(Packet packet) throws ClassNotFoundException, IOException
 	{
 		Object obj = convertToObject(packet);
@@ -205,6 +211,12 @@ public class ClientHandler
 			CancelMessage cancelMsg = new CancelMessage();
 			cancelMsg = (CancelMessage)obj;
 			meetingAvailability[cancelMsg.getmTNumber()][cancelMsg.getDate()][cancelMsg.getTime()] = true;
+		}
+		if(obj.getClass() == NegativeResponseToRequester.class)
+		{
+			NegativeResponseToRequester negMsg = new NegativeResponseToRequester();
+			negMsg = (NegativeResponseToRequester)obj;
+			meetingAvailability[negMsg.getmTNumber()][negMsg.getDate()][negMsg.getTime()] = true;
 		}
 	}
 
@@ -216,6 +228,15 @@ public class ClientHandler
 		{
 			ConfirmMessage msg = new ConfirmMessage();
 			msg = (ConfirmMessage) obj;
+			if(meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()])
+			{
+				meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()] = false;				
+			}
+		}
+		if(obj.getClass() == PositiveResponseToRequester.class)
+		{
+			PositiveResponseToRequester msg = new PositiveResponseToRequester();
+			msg = (PositiveResponseToRequester) obj;
 			if(meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()])
 			{
 				meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()] = false;				
@@ -371,6 +392,7 @@ public class ClientHandler
 		System.out.println("Enter the Port Number");
 		int input2 = scan.nextInt();
 		ClientHandler c1 = new ClientHandler(input1, input2);
+		c1.test();
 		c1.runner();
 		Thread.sleep(2000);
 		c1.runner();

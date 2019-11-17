@@ -12,13 +12,15 @@ public class NegativeResponseToRequester implements Serializable
 	private int minimum;
 	private ArrayList<InetAddress> confirmedParticipants;
 	private String topic;
+	private int mTNumber;
 	
 	public NegativeResponseToRequester()
 	{
 		
 	}
 	
-	public NegativeResponseToRequester(int rQ, int date, int time, int minimum, ArrayList<InetAddress> confirmedClients, String topic) 
+	public NegativeResponseToRequester(int rQ, int date, int time, int minimum, 
+			ArrayList<InetAddress> confirmedClients, String topic, int mT) 
 	{
 		this.rQNumber = rQ;
 		this.date = date;
@@ -26,6 +28,7 @@ public class NegativeResponseToRequester implements Serializable
 		this.minimum = minimum;
 		this.confirmedParticipants = confirmedClients;
 		this.topic = topic;
+		this.mTNumber = mT;
 	}
 
 	public int getRQ() {
@@ -92,5 +95,13 @@ public class NegativeResponseToRequester implements Serializable
 		{
 		    System.out.print(number + " | ");
 		}
+	}
+
+	public int getmTNumber() {
+		return mTNumber;
+	}
+
+	public void setmTNumber(int mTNumber) {
+		this.mTNumber = mTNumber;
 	}
 }

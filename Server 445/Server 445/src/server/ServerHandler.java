@@ -356,7 +356,8 @@ public class ServerHandler
 							PositiveResponseToRequester posMsg = new PositiveResponseToRequester(
 									meetingsArray.get(i).getrQ(),
 									acceptMsg.getmTNumber(), confirmMsg.getRoomNumber(), 
-									meetingsArray.get(i).getConfirmedClients());
+									meetingsArray.get(i).getConfirmedClients(),
+									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
 							sendToClient(new Packet(convertToBytes(posMsg), 
 									meetingsArray.get(i).getRequester(), packet.getPort()));
@@ -379,7 +380,8 @@ public class ServerHandler
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime(), 
 									meetingsArray.get(i).getMinimum(),
 									meetingsArray.get(i).getConfirmedClients(),
-									meetingsArray.get(i).getTopic());
+									meetingsArray.get(i).getTopic(),
+									meetingsArray.get(i).getmT());
 							
 							sendToClient(new Packet(convertToBytes(negMsg), 
 									meetingsArray.get(i).getRequester(), packet.getPort()));
@@ -427,7 +429,8 @@ public class ServerHandler
 							PositiveResponseToRequester posMsg = new PositiveResponseToRequester(
 									meetingsArray.get(i).getrQ(),
 									rejectMsg.getmTNumber(), confirmMsg.getRoomNumber(), 
-									meetingsArray.get(i).getConfirmedClients());
+									meetingsArray.get(i).getConfirmedClients(),
+									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
 							sendToClient(new Packet(convertToBytes(posMsg), 
 									meetingsArray.get(i).getRequester(), packet.getPort()));
@@ -449,7 +452,8 @@ public class ServerHandler
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime(), 
 									meetingsArray.get(i).getMinimum(),
 									meetingsArray.get(i).getConfirmedClients(),
-									meetingsArray.get(i).getTopic());
+									meetingsArray.get(i).getTopic(),
+									meetingsArray.get(i).getmT());
 							
 							sendToClient(new Packet(convertToBytes(negMsg), 
 									meetingsArray.get(i).getRequester(), packet.getPort()));
