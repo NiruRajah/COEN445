@@ -1,6 +1,7 @@
 package data;
 
 import java.net.InetAddress;
+import java.net.SocketException;
 
 public class Packet 
 {
@@ -15,7 +16,7 @@ public class Packet
 		this.connection = receiver;
 	}	
 
-	public Packet(byte[] data, InetAddress IP, int port) 
+	public Packet(byte[] data, InetAddress IP, int port) throws SocketException 
 	{
 		this.dataBytes = data;
 		this.iPAddress = IP;
