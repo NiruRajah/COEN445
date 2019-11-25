@@ -24,7 +24,7 @@ public class Client implements Runnable
 	{
 		try 
 		{
-			socket = new DatagramSocket(port);
+			socket = new DatagramSocket();
 			connection = new Connection(socket, InetAddress.getByName(address), port);
 			this.init();
 		} catch (SocketException | UnknownHostException e) 

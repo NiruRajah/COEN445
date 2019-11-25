@@ -47,7 +47,7 @@ public class Room
 	
 	public synchronized void delete(int date, int time, int index)
 	{
-		this.bookedRoom[date][time][index] = new Meetings();
+		this.bookedRoom[date][time][index] = null;
 	}
 	
 	public synchronized boolean checkRoomIsFree(int date, int time)
@@ -67,13 +67,13 @@ public class Room
 		if(index == 0)
 		{
 			this.bookedRoom[date][time][1] = r1;
-			this.bookedRoom[date][time][0] = new Meetings();
+			this.bookedRoom[date][time][0] = null;
 			return 2;
 		}
 		else if(index == 1)
 		{
 			this.bookedRoom[date][time][0] = r1;
-			this.bookedRoom[date][time][1] =  new Meetings();
+			this.bookedRoom[date][time][1] = null;
 			return 1;
 		}
 	return 0;

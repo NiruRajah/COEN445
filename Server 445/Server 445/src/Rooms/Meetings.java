@@ -8,11 +8,8 @@ public class Meetings implements Serializable
 {
 	private InetAddress requester;
 	private ArrayList<InetAddress> totalClients = new ArrayList<InetAddress>();
-	private ArrayList<Integer> portsOfTotalClients = new ArrayList<Integer>();
 	private ArrayList<InetAddress> confirmedClients = new ArrayList<InetAddress>();
-	private ArrayList<Integer> portsOfConfirmedClients = new ArrayList<Integer>();
 	private ArrayList<InetAddress> declinedClients = new ArrayList<InetAddress>();
-	private ArrayList<Integer> portsOfDeclindedClients = new ArrayList<Integer>();
 	private int minimum;
 	private int acceptCounter;
 	private int totalCounter;
@@ -23,7 +20,6 @@ public class Meetings implements Serializable
 	private int rQ;
 	private String roomNumber;
 	private int roomNumberIndex;
-	private int portOfRequester;
 	
 	public Meetings()
 	{
@@ -31,7 +27,7 @@ public class Meetings implements Serializable
 	}
 	
 	public Meetings(InetAddress addr, ArrayList<InetAddress> connections, int minimum, int mT, int date, int time,
-			String topic, int rQ, ArrayList<Integer> ports, int portRQ)
+			String topic, int rQ)
 	{
 		this.requester = addr;
 		this.totalClients = connections;
@@ -41,19 +37,12 @@ public class Meetings implements Serializable
 		this.time = time;
 		this.topic = topic;
 		this.setrQ(rQ);
-		this.portsOfTotalClients = ports;
-		this.portOfRequester = portRQ;
 		
 	}
 	
 	public InetAddress getRequester()
 	{
 		return this.requester;
-	}
-	
-	public void setRequester(InetAddress addr)
-	{
-		this.requester = addr;
 	}
 	
 	public ArrayList<InetAddress> getTotalClients()
@@ -162,38 +151,6 @@ public class Meetings implements Serializable
 
 	public void setDeclinedClients(ArrayList<InetAddress> declinedClients) {
 		this.declinedClients = declinedClients;
-	}
-
-	public ArrayList<Integer> getPortsOfTotalClients() {
-		return portsOfTotalClients;
-	}
-
-	public void setPortsOfTotalClients(ArrayList<Integer> portsOfTotalClients) {
-		this.portsOfTotalClients = portsOfTotalClients;
-	}
-
-	public ArrayList<Integer> getPortsOfConfirmedClients() {
-		return portsOfConfirmedClients;
-	}
-
-	public void setPortsOfConfirmedClients(ArrayList<Integer> portsOfConfirmedClients) {
-		this.portsOfConfirmedClients = portsOfConfirmedClients;
-	}
-
-	public ArrayList<Integer> getPortsOfDeclindedClients() {
-		return portsOfDeclindedClients;
-	}
-
-	public void setPortsOfDeclindedClients(ArrayList<Integer> portsOfDeclindedClients) {
-		this.portsOfDeclindedClients = portsOfDeclindedClients;
-	}
-
-	public int getPortOfRequester() {
-		return portOfRequester;
-	}
-
-	public void setPortOfRequester(int portOfRequester) {
-		this.portOfRequester = portOfRequester;
 	}
 
 }

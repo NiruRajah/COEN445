@@ -14,9 +14,7 @@ public class RequestMessage implements Serializable
 	private int time;
 	private int minimum;
 	private ArrayList<InetAddress> listOfParticipants;
-	private ArrayList<Integer> portListOfParticipants;
 	private String topic;
-	private int portOfRQ;
 	
 	public RequestMessage()
 	{
@@ -26,12 +24,9 @@ public class RequestMessage implements Serializable
 		this.minimum = 0;
 		this.listOfParticipants = new ArrayList<InetAddress>();
 		this.topic = null;
-		this.setPortListOfParticipants(new ArrayList<Integer>());
-		this.portOfRQ = 0;
 	}
 	
-	public RequestMessage(int rQ, int date, int time, int minimum, ArrayList<InetAddress> list, String topic,
-			ArrayList<Integer> portList, int portRQ)
+	public RequestMessage(int rQ, int date, int time, int minimum, ArrayList<InetAddress> list, String topic)
 	{
 		this.rQNumber = rQ;
 		this.date = date;
@@ -39,8 +34,6 @@ public class RequestMessage implements Serializable
 		this.minimum = minimum;
 		this.listOfParticipants = list;
 		this.topic = topic;
-		this.setPortListOfParticipants(portList);
-		this.portOfRQ = portRQ;
 	}
 	
 	public int getRQ() {
@@ -99,22 +92,6 @@ public class RequestMessage implements Serializable
 
 	public void setListOfParticipants(ArrayList<InetAddress> listOfParticipants) {
 		this.listOfParticipants = listOfParticipants;
-	}
-
-	public ArrayList<Integer> getPortListOfParticipants() {
-		return portListOfParticipants;
-	}
-
-	public void setPortListOfParticipants(ArrayList<Integer> portListOfParticipants) {
-		this.portListOfParticipants = portListOfParticipants;
-	}
-
-	public int getPortOfRQ() {
-		return portOfRQ;
-	}
-
-	public void setPortOfRQ(int portOfRQ) {
-		this.portOfRQ = portOfRQ;
 	}
 	
 }

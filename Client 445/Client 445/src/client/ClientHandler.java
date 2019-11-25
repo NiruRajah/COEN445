@@ -34,47 +34,48 @@ public class ClientHandler
 {
 
 	private Client client;
-	private int port;
-	private boolean[][] meetingAvailability = new boolean [7][24];
+	private boolean[][][] meetingAvailability = new boolean [100][7][24];
 	
 	public ClientHandler(String inp1, int inp2)
 	{
 		this.client = new Client(inp1, inp2);
-		this.port = inp2;
-		for (int i = 0; i < 7; i++) //set the meeting availability scheduler to all true (available)
+		for (int i = 0; i < 100; i++) //set the meeting availability scheduler to all true (available)
 		{
-			for (int j = 0; j < 24; j++)
+			for (int j = 0; j < 7; j++)
 			{
-				meetingAvailability[i][j] = true;
+				for (int z = 0; z < 24; z++)
+				{
+					meetingAvailability[i][j][z] = true;
+				}
 			}
 		}
 	}
 	
 	public synchronized void test() throws IOException 
 	{
+		
+		
 		client.receive(new PacketHandler() 
+		{
+			@Override
+			public synchronized void process(Packet packet) throws ClassNotFoundException, IOException 
 			{
-				@Override
-				public synchronized void process(Packet packet) throws ClassNotFoundException, IOException 
-				{
-					
-					System.out.print("Received From Server:");
-					print(convertToObject(packet));
-					
-					//These are functions for checking what type of message was received and what to do depending
-					//on what the messages were
-					checkForInviteMessage(packet);
-					
-					checkForConfirmMessage(packet);
-					
-					checkForNegativeResponseToRequester(packet);
-					
-					
-				}
 				
-			});
-		
-		
+				System.out.print("Received From Server:");
+				print(convertToObject(packet));
+				
+				//These are functions for checking what type of message was received and what to do depending
+				//on what the messages were
+				checkForInviteMessage(packet);
+				
+				checkForConfirmMessage(packet);
+				
+				checkForNegativeResponseToRequester(packet);
+				
+				
+			}
+			
+		});
 		
 		//runner();
 	}
@@ -89,12 +90,12 @@ public class ClientHandler
 	{
 		while (true)
 		{
-			System.out.println("Press 1 to send a Request Message"
+			System.out.println("Press 1 to Send a Request Meeting"
 								+ "\nPress 2 to Cancel a Meeting"
 								+  "\nPress 3 to Withdraw from a Meeting"
 								+  "\nPress 4 to Add yourself to a Meeting you declined before"
 								+  "\nPress 5 to Create An Unavailability Scenario for an existing Booked Meeting Room"
-								+ 	"\nPress 9 to Exit");
+								+ 	"\nPress 0 to Exit");
 			@SuppressWarnings("resource")
 			Scanner sc = new Scanner(System.in);
 			int inp = 0;
@@ -112,8 +113,6 @@ public class ClientHandler
 				inp = 9;
 				ArrayList<InetAddress> list1 = new ArrayList<InetAddress>();
 				list1.clear();
-				ArrayList<Integer> list2 = new ArrayList<Integer>();
-				list2.clear();
 				int max = 1000;
 				int min = 1;
 				int rQ = (int) ((Math.random()*((max-1)+1))+min);
@@ -121,32 +120,48 @@ public class ClientHandler
 				int time = 0;
 				int minimum = 0;
 				String topic;
-				System.out.println("Enter the day");
+				int op = 0;
+				while(op == 0) {
+				System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
+				System.out.println("Enter the day (#): ");
 				date = sc.nextInt();
-				System.out.println("Enter the time");
+				if(date>0 && date<6) {
+					op = 1;
+				}
+				else {
+					System.out.println("try again");
+				}
+				
+				}
+				while(op == 1) {
+				System.out.println("Open from 8H to 17H");
+				System.out.println("Enter the time: ");
 				time = sc.nextInt();
-				System.out.println("Enter the minimum number of participants needed for the meeting");
+				if(time>7 && date<18) {
+					op = 9;
+				}
+				else {
+					System.out.println("try again");
+				}
+				
+				}
+				System.out.println("Enter the minimum number of participants needed for the meeting: ");
 				minimum = sc.nextInt();
 				Scanner sc1 = new Scanner(System.in);
-				String ip = "6";
-				while(!(ip.equals("8")))
+				String ip = "false";
+				while(!(ip.equals("next")))
 				{
-					System.out.println("Enter all the attending participant's ip addresses and then press 8 when done");
+					System.out.println("Enter all the attending participant's ip addresses and type in 'next' when done: ");
 					ip = sc1.nextLine();
-					if(!(ip.equals("8")))
+					if(!(ip.equals("next")))
 					{
 						System.out.println("added: " + InetAddress.getByName(ip));
 						list1.add(InetAddress.getByName(ip));
-						System.out.println("Enter the port number of attending participant");
-						int portX = sc.nextInt();
-						list2.add(portX);
 					}
-					
 				}
-				System.out.println("Enter the topic");
+				System.out.println("Enter the topic: ");
 				topic = sc1.nextLine();
-				RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic, list2, 
-						port);
+				RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic);
 				Object obj = (Object) requestMsg;
 				sentToServer(obj);
 				break;
@@ -154,7 +169,7 @@ public class ClientHandler
 			}
 			else if(inp == 2)
 			{
-				System.out.println("Enter the Meeting Number of the meeting you want to cancel");
+				System.out.println("Enter the Meeting Number of the meeting you want to cancel: ");
 				//Scanner scZ = new Scanner(System.in);
 				int inpx = 0;
 				inpx = sc.nextInt();
@@ -165,7 +180,7 @@ public class ClientHandler
 			}
 			else if(inp == 3)
 			{
-				System.out.println("Enter the Meeting Number of the meeting you want to withdraw from");
+				System.out.println("Enter the Meeting Number of the meeting you want to withdraw from: ");
 				int inpx = 0;
 				inpx = sc.nextInt();
 				WithdrawMessage withdrawMsg = new WithdrawMessage(inpx);
@@ -175,7 +190,7 @@ public class ClientHandler
 			}
 			else if(inp == 4)
 			{
-				System.out.println("Enter the Meeting Number of the room you want to add yourself to");
+				System.out.println("Enter the Meeting Number of the room you want to add yourself to: ");
 				int inpx = 0;
 				inpx = sc.nextInt();
 				AddClient addMsg = new AddClient(inpx);
@@ -188,10 +203,10 @@ public class ClientHandler
 				@SuppressWarnings("resource")
 				Scanner sc2 = new Scanner(System.in);
 				String roomNumber = null;
-				System.out.println("Enter the Meeting Number of the room you want to create the scenario for");
+				System.out.println("Enter the Meeting Number of the room you want to create the scenario for: ");
 				int inpx = 0;
 				inpx = sc.nextInt();
-				System.out.println("Enter the Room Number of the room you want to create the scenario for");
+				System.out.println("Enter the Room Number of the room you want to create the scenario for: ");
 				roomNumber = sc2.nextLine();
 				RoomChangeMessage roomMsg = new RoomChangeMessage(inpx, roomNumber);
 				Object obj = (Object) roomMsg;
@@ -199,7 +214,7 @@ public class ClientHandler
 				break;
 			}
 			// break the loop if user enters "bye" 
-			else if (inp == 9) 
+			else if (inp == 0) 
 			{
 				break;
 				
@@ -216,13 +231,13 @@ public class ClientHandler
 		{
 			CancelMessage cancelMsg = new CancelMessage();
 			cancelMsg = (CancelMessage)obj;
-			meetingAvailability[cancelMsg.getDate()][cancelMsg.getTime()] = true;
+			meetingAvailability[cancelMsg.getmTNumber()][cancelMsg.getDate()][cancelMsg.getTime()] = true;
 		}
 		if(obj.getClass() == NegativeResponseToRequester.class)
 		{
 			NegativeResponseToRequester negMsg = new NegativeResponseToRequester();
 			negMsg = (NegativeResponseToRequester)obj;
-			meetingAvailability[negMsg.getDate()][negMsg.getTime()] = true;
+			meetingAvailability[negMsg.getmTNumber()][negMsg.getDate()][negMsg.getTime()] = true;
 		}
 	}
 
@@ -234,18 +249,18 @@ public class ClientHandler
 		{
 			ConfirmMessage msg = new ConfirmMessage();
 			msg = (ConfirmMessage) obj;
-			if(meetingAvailability[msg.getDate()][msg.getTime()])
+			if(meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()])
 			{
-				meetingAvailability[msg.getDate()][msg.getTime()] = false;				
+				meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()] = false;				
 			}
 		}
 		if(obj.getClass() == PositiveResponseToRequester.class)
 		{
 			PositiveResponseToRequester msg = new PositiveResponseToRequester();
 			msg = (PositiveResponseToRequester) obj;
-			if(meetingAvailability[msg.getDate()][msg.getTime()])
+			if(meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()])
 			{
-				meetingAvailability[msg.getDate()][msg.getTime()] = false;				
+				meetingAvailability[msg.getmTNumber()][msg.getDate()][msg.getTime()] = false;				
 			}
 		}
 	}
@@ -258,7 +273,7 @@ public class ClientHandler
 		{
 			InviteMessage msg = new InviteMessage();
 			msg = (InviteMessage) obj;
-			if(meetingAvailability[msg.getDate()][msg.getTime()])
+			if(meetingAvailability[msg.getMT()][msg.getDate()][msg.getTime()])
 			{
 				AcceptMessage acceptMsg = new AcceptMessage(msg.getMT());
 				client.send(convertToBytes(acceptMsg));
@@ -393,12 +408,19 @@ public class ClientHandler
     {
 
 		Scanner scan = new Scanner(System.in);
-		System.out.println("Enter IP Address of Server");
+		System.out.println("Enter your IP Address");
 		String input1 = scan.nextLine();
-		System.out.println("Enter Your Port Number");
+		System.out.println("Enter the Port Number");
 		int input2 = scan.nextInt();
 		ClientHandler c1 = new ClientHandler(input1, input2);
 		c1.test();
+		boolean check = true;
+		while(check) {
+			c1.runner();
+			Thread.sleep(2000);
+		}
+		
+		/*
 		c1.runner();
 		Thread.sleep(2000);
 		c1.runner();
@@ -417,6 +439,7 @@ public class ClientHandler
 		Thread.sleep(2000);
 		c1.runner();
 		Thread.sleep(2000);
+		*/
     }
 
     

@@ -37,7 +37,7 @@ public class RoomChangeMessage implements Serializable
 
 	public void print()
 	{
-		System.out.println(" | Room Change Message: | MT: " + this.getmTNumber() + " | Room Number: "
+		System.out.println(" | Room Change Message: | MT: " + this.getmTNumber() + " | New Room Number: "
 				+ this.getRoomNumber());
 	}
 }
