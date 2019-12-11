@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 
 public class Connection 
@@ -17,17 +18,17 @@ public class Connection
 		
 	}
 	
-	public Connection(DatagramSocket socket, InetAddress address, int port) 
+	public Connection(DatagramSocket socket, InetAddress address, int port) throws SocketException 
 	{
 		this.address = address;
 		this.port = port;
-		this.clientSocket = socket;
+		this.clientSocket = new DatagramSocket();
 	}
 	
 
 	public synchronized void send(byte[] bytes) 
 	{
-		DatagramPacket datagramPack = new DatagramPacket(bytes, bytes.length, address, port);
+		DatagramPacket datagramPack = new DatagramPacket(bytes, bytes.length, address, 1337);
 		
 		try 
 		{
