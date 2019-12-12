@@ -3,13 +3,13 @@ package Rooms;
 public class Room 
 {
 	
-	private Meetings[][][] bookedRoom = new Meetings [7][24][2];
+	private Meetings[][][] bookedRoom = new Meetings [8][25][2];
 
 	public Room()
 	{
-		for(int i = 0; i < 7; i++)
+		for(int i = 1; i <= 7; i++)
 		{
-			for(int j = 0; j < 24; j++)
+			for(int j = 1; j <= 24; j++)
 			{
 				for(int z = 0; z < 2; z++)
 				{

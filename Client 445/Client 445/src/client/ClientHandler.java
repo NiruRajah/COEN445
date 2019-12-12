@@ -35,15 +35,16 @@ public class ClientHandler
 
 	private Client client;
 	private int port;
-	private boolean[][] meetingAvailability = new boolean [7][24];
+	private boolean[][] meetingAvailability = new boolean [8][25];
+	public static ClientHandler c1;
 	
 	public ClientHandler(String inp1, int inp2)
 	{
 		this.client = new Client(inp1, inp2);
 		this.port = inp2;
-		for (int i = 0; i < 7; i++) //set the meeting availability scheduler to all true (available)
+		for (int i = 1; i <= 7; i++) //set the meeting availability scheduler to all true (available)
 		{
-			for (int j = 0; j < 24; j++)
+			for (int j = 1; j <= 24; j++)
 			{
 				meetingAvailability[i][j] = true;
 			}
@@ -60,7 +61,6 @@ public class ClientHandler
 					
 					System.out.print("Received From Server:");
 					print(convertToObject(packet));
-					
 					//These are functions for checking what type of message was received and what to do depending
 					//on what the messages were
 					checkForInviteMessage(packet);
@@ -94,6 +94,7 @@ public class ClientHandler
 								+  "\nPress 3 to Withdraw from a Meeting"
 								+  "\nPress 4 to Add yourself to a Meeting you declined before"
 								+  "\nPress 5 to Create An Unavailability Scenario for an existing Booked Meeting Room"
+								+  "\nPress 8 to See Invite when Prompted"
 								+ 	"\nPress 9 to Exit");
 			@SuppressWarnings("resource")
 			Scanner sc = new Scanner(System.in);
@@ -121,19 +122,41 @@ public class ClientHandler
 				int time = 0;
 				int minimum = 0;
 				String topic;
-				System.out.println("Enter the day");
+				int op = 0;
+				while(op == 0) {
+				System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
+				System.out.println("Enter the day (#): ");
 				date = sc.nextInt();
-				System.out.println("Enter the time");
+				if(date>0 && date<6) {
+					op = 1;
+				}
+				else {
+					System.out.println("try again");
+				}
+				
+				}
+				while(op == 1) {
+				System.out.println("Open from 8H to 17H");
+				System.out.println("Enter the time: ");
 				time = sc.nextInt();
+				
+				if(time>7 && time<18) {
+					op = 9;
+				}
+				else {
+					System.out.println("try again");
+				}
+				
+				}
 				System.out.println("Enter the minimum number of participants needed for the meeting");
 				minimum = sc.nextInt();
 				Scanner sc1 = new Scanner(System.in);
-				String ip = "6";
-				while(!(ip.equals("8")))
+				String ip = "false";
+				while(!(ip.equals("next")))
 				{
-					System.out.println("Enter all the attending participant's ip addresses and then press 8 when done");
+					System.out.println("Enter all the attending participant's ip addresses and type in 'next' when done");
 					ip = sc1.nextLine();
-					if(!(ip.equals("8")))
+					if(!(ip.equals("next")))
 					{
 						System.out.println("added: " + InetAddress.getByName(ip));
 						list1.add(InetAddress.getByName(ip));
@@ -200,6 +223,11 @@ public class ClientHandler
 			}
 			// break the loop if user enters "bye" 
 			else if (inp == 9) 
+			{
+				break;
+				
+			}
+			else if (inp == 8) 
 			{
 				break;
 				
@@ -397,7 +425,7 @@ public class ClientHandler
 		String input1 = scan.nextLine();
 		System.out.println("Enter Your Port Number");
 		int input2 = scan.nextInt();
-		ClientHandler c1 = new ClientHandler(input1, input2);
+		c1 = new ClientHandler(input1, input2);
 		c1.test();
 		c1.runner();
 		Thread.sleep(2000);
