@@ -1,5 +1,13 @@
 package client;
 
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,6 +17,16 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import Messeges.AcceptMessage;
 import Messeges.AddClient;
@@ -36,6 +54,7 @@ public class ClientHandler
 
 	private Client client;
 	private int port;
+	private boolean breaker;
 	private boolean[][] meetingAvailability = new boolean [8][25];
 	//public static ClientHandler c1;
 	
@@ -43,6 +62,7 @@ public class ClientHandler
 	{
 		this.client = new Client(inp1, inp2);
 		this.port = inp2;
+		this.breaker = true;
 		for (int i = 1; i <= 7; i++) //set the meeting availability scheduler to all true (available)
 		{
 			for (int j = 1; j <= 24; j++)
@@ -59,6 +79,7 @@ public class ClientHandler
 				@Override
 				public synchronized void process(Packet packet) throws ClassNotFoundException, IOException 
 				{
+
 					
 					System.out.print("Received From Server:");
 					print(convertToObject(packet));
@@ -69,15 +90,8 @@ public class ClientHandler
 					checkForConfirmMessage(packet);
 					
 					checkForNegativeResponseToRequester(packet);
-					
-					
 				}
-				
 			});
-		
-		
-		
-		//runner();
 	}
 	
 	public synchronized void sentToServer(Object object) throws IOException
@@ -85,18 +99,19 @@ public class ClientHandler
 		client.send(convertToBytes(object));
 	}
 	
-	public synchronized void runner() throws IOException
+	public synchronized void runner() throws IOException, InterruptedException
 	//testing all the functions by allowing the clients to decide what to send
 	{
 		while (true)
 		{
 			System.out.println("Press 1 to send a Request Message"
-								+ "\nPress 2 to Cancel a Meeting"
-								+  "\nPress 3 to Withdraw from a Meeting"
-								+  "\nPress 4 to Add yourself to a Meeting you declined before"
-								+  "\nPress 5 to Create An Unavailability Scenario for an existing Booked Meeting Room"
-								+  "\nPress 8 to See Invite when Prompted"
-								+ 	"\nPress 9 to Exit");
+								+ "\nPress 2 To Cancel A Meeting"
+								+  "\nPress 3 To Withdraw From A Meeting"
+								+  "\nPress 4 To Add Yourself To A Meeting You Declined Before"
+								+  "\nPress 5 To Create An Unavailability Scenario For An Existing Booked Meeting Room"
+								+  "\nPress 8 To Exit And View Any Pending Messages "
+								+	"\nNOTE: 'Received From Server:' Means There Are Pending Messages");
+								//+ 	"\nPress 9 To Exit");
 			@SuppressWarnings("resource")
 			Scanner sc = new Scanner(System.in);
 			int inp = 0;
@@ -236,15 +251,13 @@ public class ClientHandler
 				sentToServer(obj);
 				break;
 			}
-			// break the loop if user enters "bye" 
-			else if (inp == 9) 
+			else if (inp == 8) 
 			{
 				break;
 				
 			}
-			else if (inp == 8) 
+			else
 			{
-				break;
 				
 			}
 		}
@@ -491,28 +504,57 @@ public class ClientHandler
 		
 		ClientHandler c1 = new ClientHandler(input1, input2);
 		c1.test();
-		while(true)
+
+	    String inpAddr = input1;
+        int inpPort = input2;
+        String display = new String("Client || IP Address: " + inpAddr 
+        		+ " || Port Number: " + inpPort);
+        
+        System.out.println("Successfully Started: " + display);
+		
+		JButton button;
+	    JFrame frame;
+	    JTextArea textArea;
+	    button = new JButton("Click This Button To Send A Message Or Create A Scenario");
+	    button.setPreferredSize(new Dimension(100, 100));
+	    button.setFont(new Font("Arial", Font.BOLD, 40));
+        frame = new JFrame(display);
+        textArea = new JTextArea(30, 60);
+    	textArea.setText("Successfully Started: " + display);
+    	textArea.setFont(new Font("Arial", Font.BOLD, 40));
+    	textArea.setEditable(false);
+        textArea.setLineWrap(true);
+        frame.setLayout(new BorderLayout());
+        frame.add(textArea, BorderLayout.NORTH);
+        frame.add(button, BorderLayout.SOUTH);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+		
+		button.addActionListener(new ActionListener() 
+		{ 
+		    public void actionPerformed(ActionEvent e) 
+		    {
+		    	  
+		        try 
+		        {
+					c1.runner();
+				} catch (IOException e1) 
+		        {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (InterruptedException e1) 
+		        {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    } 
+		});
+		/*while(true)
 		{
 			c1.runner();
 			Thread.sleep(2000);
-		}
-		/*c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();*/
-		
-		
+		}*/
     }
 
     
