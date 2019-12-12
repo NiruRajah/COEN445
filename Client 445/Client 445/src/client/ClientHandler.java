@@ -381,6 +381,12 @@ public class ClientHandler
 			msg = (CancelMessage) obj;
 			msg.print();
 		}
+		if(obj.getClass() == CancelInviteMessage.class)
+		{
+			CancelInviteMessage msg = new CancelInviteMessage();
+			msg = (CancelInviteMessage) obj;
+			msg.print();
+		}
 		if(obj.getClass() == PositiveResponseToRequester.class)
 		{
 			PositiveResponseToRequester msg = new PositiveResponseToRequester();
@@ -432,19 +438,18 @@ public class ClientHandler
 	}
 	
 	
-	public static boolean validate(final String ip) {
-	    String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+	public static boolean validateIP(final String ip) 
+	{
+	    String pattern = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|"
+	    		+ "2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
 
-	    return ip.matches(PATTERN);
+	    return ip.matches(pattern);
 	}
 	
-	public static boolean isNumeric(String strNum) {
-	    if (strNum == null) {
-	        return false;
-	    }
-	    try {
-	        double d = Double.parseDouble(strNum);
-	    } catch (NumberFormatException nfe) {
+	public static boolean isNumeric(String stringNum) 
+	{
+	    if (stringNum == null) 
+	    {
 	        return false;
 	    }
 	    return true;
@@ -459,24 +464,26 @@ public class ClientHandler
 		String input1 = "";
 		String temp = "";
 		int input2 = 0;
-		boolean ok = false;
+		boolean isTrue = false;
 		
-		while(!ok) {
-		System.out.println("Enter IP Address of Server");
-		input1 = scan.nextLine();
-		
-		ok = validate(input1);
-		
+		while(!isTrue) 
+		{
+			System.out.println("Enter IP Address of Server");
+			input1 = scan.nextLine();
+			
+			isTrue = validateIP(input1);
+			
 		}
 		
-		ok = false;
+		isTrue = false;
 		
-		while(!ok) {
-		System.out.println("Enter Your Port Number");
-		temp = scan.nextLine();
-		
-		ok = isNumeric(temp);
-		
+		while(!isTrue) 
+		{
+			System.out.println("Enter Your Port Number");
+			temp = scan.nextLine();
+			
+			isTrue = isNumeric(temp);
+			
 		}
 		
 		input2 = Integer.parseInt(temp);
@@ -485,11 +492,23 @@ public class ClientHandler
 		c1 = new ClientHandler(input1, input2);
 		c1.test();
 		c1.runner();
-		while(true)
-		{
-			Thread.sleep(2000);
-			c1.runner();
-		}
+		Thread.sleep(2000);
+		c1.runner();
+		Thread.sleep(2000);
+		c1.runner();
+		Thread.sleep(2000);
+		c1.runner();
+		Thread.sleep(2000);
+		c1.runner();
+		Thread.sleep(2000);
+		c1.runner();
+		Thread.sleep(2000);
+		c1.runner();
+		Thread.sleep(2000);
+		c1.runner();
+		Thread.sleep(2000);
+		c1.runner();
+		
 		
     }
 
