@@ -431,15 +431,57 @@ public class ClientHandler
 		}
 	}
 	
+	
+	public static boolean validate(final String ip) {
+	    String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+
+	    return ip.matches(PATTERN);
+	}
+	
+	public static boolean isNumeric(String strNum) {
+	    if (strNum == null) {
+	        return false;
+	    }
+	    try {
+	        double d = Double.parseDouble(strNum);
+	    } catch (NumberFormatException nfe) {
+	        return false;
+	    }
+	    return true;
+	}
+	
+	
 	//calling the runner function for testing the server
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
 
 		Scanner scan = new Scanner(System.in);
+		String input1 = "";
+		String temp = "";
+		int input2 = 0;
+		boolean ok = false;
+		
+		while(!ok) {
 		System.out.println("Enter IP Address of Server");
-		String input1 = scan.nextLine();
+		input1 = scan.nextLine();
+		
+		ok = validate(input1);
+		
+		}
+		
+		ok = false;
+		
+		while(!ok) {
 		System.out.println("Enter Your Port Number");
-		int input2 = scan.nextInt();
+		temp = scan.nextLine();
+		
+		ok = isNumeric(temp);
+		
+		}
+		
+		input2 = Integer.parseInt(temp);
+		
+		
 		c1 = new ClientHandler(input1, input2);
 		c1.test();
 		c1.runner();
