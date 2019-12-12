@@ -123,30 +123,36 @@ public class ClientHandler
 				int minimum = 0;
 				String topic;
 				int op = 0;
-				while(op == 0) {
-				System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
-				System.out.println("Enter the day (#): ");
-				date = sc.nextInt();
-				if(date>0 && date<6) {
-					op = 1;
-				}
-				else {
-					System.out.println("try again");
-				}
+				while(op == 0) 
+				{
+					System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
+					System.out.println("Enter the day (#): ");
+					date = sc.nextInt();
+					if(date>0 && date<6) 
+					{
+						op = 1;
+					}
+					else 
+					{
+						System.out.println("try again");
+					}
 				
 				}
-				while(op == 1) {
-				System.out.println("Open from 8H to 17H");
-				System.out.println("Enter the time: ");
-				time = sc.nextInt();
-				
-				if(time>7 && time<18) {
-					op = 9;
-				}
-				else {
-					System.out.println("try again");
-				}
-				
+				while(op == 1) 
+				{
+					System.out.println("Open from 8H to 17H");
+					System.out.println("Enter the time: ");
+					time = sc.nextInt();
+					
+					if(time>7 && time<18) 
+					{
+						op = 9;
+					}
+					else 
+					{
+						System.out.println("try again");
+					}
+					
 				}
 				System.out.println("Enter the minimum number of participants needed for the meeting");
 				minimum = sc.nextInt();
@@ -168,10 +174,18 @@ public class ClientHandler
 				}
 				System.out.println("Enter the topic");
 				topic = sc1.nextLine();
-				RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic, list2, 
-						port);
-				Object obj = (Object) requestMsg;
-				sentToServer(obj);
+				if (meetingAvailability[date][time])
+				{
+					RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic, list2, 
+							port);
+					Object obj = (Object) requestMsg;
+					sentToServer(obj);
+				}
+				else
+				{
+					System.out.println("Cannot send request because you are not available at this date/time");
+				}
+				
 				break;
 				
 			}
@@ -428,23 +442,12 @@ public class ClientHandler
 		c1 = new ClientHandler(input1, input2);
 		c1.test();
 		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
+		while(true)
+		{
+			Thread.sleep(2000);
+			c1.runner();
+		}
+		
     }
 
     

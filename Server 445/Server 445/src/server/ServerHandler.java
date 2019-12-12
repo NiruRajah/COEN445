@@ -387,7 +387,7 @@ public class ServerHandler
 						else
 						{
 							
-							CancelMessage cancelMsg = new CancelMessage(acceptMsg.getmTNumber(), 
+							CancelInviteMessage cancelMsg = new CancelInviteMessage(acceptMsg.getmTNumber(), 
 									"Accepted participants are lower than required minimum",
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
@@ -462,7 +462,7 @@ public class ServerHandler
 						else
 						{
 
-							CancelMessage cancelMsg = new CancelMessage(rejectMsg.getmTNumber(), 
+							CancelInviteMessage cancelMsg = new CancelInviteMessage(rejectMsg.getmTNumber(), 
 									"Accepted participants are lower than required minimum",
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
@@ -659,8 +659,8 @@ public class ServerHandler
 		//int port = scan.nextInt();
 		ServerHandler s1 = new ServerHandler();
 		s1.test(1337);
-		InviteMessage inviteMsg = new InviteMessage(1, 2, 3, 
-				"445", InetAddress.getByName("127.0.0.1"));
+		//InviteMessage inviteMsg = new InviteMessage(1, 2, 3, 
+				//"445", InetAddress.getByName("127.0.0.1"));
 		
 			//s1.sendToClient(new Packet(s1.convertToBytes(inviteMsg), InetAddress.getByName("127.0.0.1"), 
 					//1338));
