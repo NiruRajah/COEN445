@@ -23,7 +23,7 @@ public class Server implements Runnable
 			this.init();
 		} catch (SocketException e) 
 		{
-			System.err.println("Unable to initialise the server..." + e.getMessage());
+			System.err.println("Unable to start server..." + e.getMessage());
 		}
 	}
 
@@ -98,6 +98,6 @@ public class Server implements Runnable
 	public void run() 
 	{
 		running = true;
-		System.out.println("Server started on port " + port);
+		System.out.println("Successfully Started Server On Port: " + port);
 	}
 }

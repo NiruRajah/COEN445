@@ -67,7 +67,8 @@ public class ServerHandler
 			boolean invalidEntryChecker = true;
 			for (int i = 0; i < meetingsArray.size(); i++)
 			{
-				if(addMsg.getmTNumber() == meetingsArray.get(i).getmT())
+				if(addMsg.getmTNumber() == meetingsArray.get(i).getmT() &&
+						!packet.getAddr().equals(meetingsArray.get(i).getRequester()))
 				{
 					invalidEntryChecker = false;
 					for (int j = 0; j < meetingsArray.get(i).getDeclinedClients().size(); j++)
@@ -91,22 +92,28 @@ public class ServerHandler
 									meetingsArray.get(i).getRequester(), meetingsArray.get(i).getPortOfRequester()));
 							cancelledMeetingChecker = false;
 						}
+						else if(meetingsArray.get(i).getConfirmedClients().get(j).equals(packet.getAddr()))
+						{
+							invalidEntryChecker = true;
+						}
 						
 					}
 				}
 			}
-			if(cancelledMeetingChecker)
-			for (int i = 0; i < meetingsArray.size(); i++)
-			{
-				CancelMessage cancelMsg = new CancelMessage(addMsg.getmTNumber(), 
-						"Meeting Has Already Been Cancelled",
-						meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
-				sendToClient(new Packet(convertToBytes(cancelMsg), 
-						packet.getAddr(), returnPort(packet.getAddr(), i)));
-			}
 			if(invalidEntryChecker)
 			{
 				System.out.println("Ignored Invalid Add Message Request From Client");
+			}
+			else if(cancelledMeetingChecker)
+			{
+				for (int i = 0; i < meetingsArray.size(); i++)
+				{
+					CancelMessage cancelMsg = new CancelMessage(addMsg.getmTNumber(), 
+							"Meeting Has Already Been Cancelled",
+							meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
+					sendToClient(new Packet(convertToBytes(cancelMsg), 
+							packet.getAddr(), returnPort(packet.getAddr(), i)));
+				}
 			}
 		}
 				
@@ -123,7 +130,8 @@ public class ServerHandler
 			withdrawMsg = (WithdrawMessage)obj;
 			for (int i = 0; i < meetingsArray.size(); i++)
 			{
-				if(withdrawMsg.getmTNumber() == meetingsArray.get(i).getmT())
+				if(withdrawMsg.getmTNumber() == meetingsArray.get(i).getmT()
+						&& !packet.getAddr().equals(meetingsArray.get(i).getRequester()))
 				{
 
 					//The below logical conditions are under the assumption that when a client withdraws
@@ -237,7 +245,7 @@ public class ServerHandler
 			}
 			if(checkX)
 			{
-				System.out.println("Ignored Invalid Cancel Message Request From Requester");
+				System.out.println("Ignored Invalid Cancel Message");
 				
 			}
 		}
@@ -387,7 +395,7 @@ public class ServerHandler
 						else
 						{
 							
-							CancelMessage cancelMsg = new CancelMessage(acceptMsg.getmTNumber(), 
+							CancelInviteMessage cancelMsg = new CancelInviteMessage(acceptMsg.getmTNumber(), 
 									"Accepted participants are lower than required minimum",
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
@@ -462,7 +470,7 @@ public class ServerHandler
 						else
 						{
 
-							CancelMessage cancelMsg = new CancelMessage(rejectMsg.getmTNumber(), 
+							CancelInviteMessage cancelMsg = new CancelInviteMessage(rejectMsg.getmTNumber(), 
 									"Accepted participants are lower than required minimum",
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
@@ -601,6 +609,12 @@ public class ServerHandler
 			msg = (CancelMessage) obj;
 			msg.print();
 		}
+		if(obj.getClass() == CancelInviteMessage.class)
+		{
+			CancelInviteMessage msg = new CancelInviteMessage();
+			msg = (CancelInviteMessage) obj;
+			msg.print();
+		}
 		if(obj.getClass() == PositiveResponseToRequester.class)
 		{
 			PositiveResponseToRequester msg = new PositiveResponseToRequester();
@@ -655,16 +669,8 @@ public class ServerHandler
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
 		Scanner scan = new Scanner(System.in);
-		//System.out.println("Enter the Port Number");
-		//int port = scan.nextInt();
 		ServerHandler s1 = new ServerHandler();
-		s1.test(1337);
-		InviteMessage inviteMsg = new InviteMessage(1, 2, 3, 
-				"445", InetAddress.getByName("127.0.0.1"));
-		
-			//s1.sendToClient(new Packet(s1.convertToBytes(inviteMsg), InetAddress.getByName("127.0.0.1"), 
-					//1338));
-		
+		s1.test(2300);
     }
 
 	

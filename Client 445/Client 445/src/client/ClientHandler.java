@@ -1,19 +1,41 @@
 package client;
 
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.net.BindException;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import Messeges.AcceptMessage;
 import Messeges.AddClient;
 import Messeges.CancelMessage;
 import Messeges.CancelMessageFromRequester;
+import Messeges.CancelInviteMessage;
 import Messeges.ConfirmMessage;
 import Messeges.InformRequesterOfAddedClient;
 import Messeges.InformRequesterOfWithdrawal;
@@ -35,13 +57,25 @@ public class ClientHandler
 
 	private Client client;
 	private int port;
+	private boolean breaker;
 	private boolean[][] meetingAvailability = new boolean [8][25];
-	public static ClientHandler c1;
+	public boolean dontuse = false;
+	//public static ClientHandler c1;
 	
-	public ClientHandler(String inp1, int inp2)
+	
+	public ClientHandler(String inp1, int inp2) throws SocketException, UnknownHostException 
 	{
+		
+		
 		this.client = new Client(inp1, inp2);
+		
+		if(client.dontuse) {
+			dontuse = true;
+			return;
+		}
+		
 		this.port = inp2;
+		this.breaker = true;
 		for (int i = 1; i <= 7; i++) //set the meeting availability scheduler to all true (available)
 		{
 			for (int j = 1; j <= 24; j++)
@@ -58,6 +92,7 @@ public class ClientHandler
 				@Override
 				public synchronized void process(Packet packet) throws ClassNotFoundException, IOException 
 				{
+
 					
 					System.out.print("Received From Server:");
 					print(convertToObject(packet));
@@ -68,15 +103,8 @@ public class ClientHandler
 					checkForConfirmMessage(packet);
 					
 					checkForNegativeResponseToRequester(packet);
-					
-					
 				}
-				
 			});
-		
-		
-		
-		//runner();
 	}
 	
 	public synchronized void sentToServer(Object object) throws IOException
@@ -84,18 +112,19 @@ public class ClientHandler
 		client.send(convertToBytes(object));
 	}
 	
-	public synchronized void runner() throws IOException
+	public synchronized void runner() throws IOException, InterruptedException
 	//testing all the functions by allowing the clients to decide what to send
 	{
 		while (true)
 		{
 			System.out.println("Press 1 to send a Request Message"
-								+ "\nPress 2 to Cancel a Meeting"
-								+  "\nPress 3 to Withdraw from a Meeting"
-								+  "\nPress 4 to Add yourself to a Meeting you declined before"
-								+  "\nPress 5 to Create An Unavailability Scenario for an existing Booked Meeting Room"
-								+  "\nPress 8 to See Invite when Prompted"
-								+ 	"\nPress 9 to Exit");
+								+ "\nPress 2 To Cancel A Meeting"
+								+  "\nPress 3 To Withdraw From A Meeting"
+								+  "\nPress 4 To Add Yourself To A Meeting You Declined Before"
+								+  "\nPress 5 To Create An Unavailability Scenario For An Existing Booked Meeting Room"
+								+  "\nPress 8 To Exit And View Any Pending Messages "
+								+	"\nNOTE: 'Received From Server:' Means There Are Pending Messages");
+								//+ 	"\nPress 9 To Exit");
 			@SuppressWarnings("resource")
 			Scanner sc = new Scanner(System.in);
 			int inp = 0;
@@ -123,33 +152,49 @@ public class ClientHandler
 				int minimum = 0;
 				String topic;
 				int op = 0;
+				while(op == 0) 
+				{
+					System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
+					System.out.println("Enter the day (#): ");
+					date = sc.nextInt();
+					if(date>0 && date<6) 
+					{
+						op = 1;
+					}
+					else 
+					{
+						System.out.println("try again");
+					}
+				
+				}
+				while(op == 1) 
+				{
+					System.out.println("Open from 8H to 17H");
+					System.out.println("Enter the time: ");
+					time = sc.nextInt();
+					
+					if(time>7 && time<18) 
+					{
+						op = 9;
+					}
+					else 
+					{
+						System.out.println("try again");
+					}
+					
+				}
+				op = 0;
 				while(op == 0) {
-				System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
-				System.out.println("Enter the day (#): ");
-				date = sc.nextInt();
-				if(date>0 && date<6) {
-					op = 1;
+					System.out.println("Enter the minimum number of participants needed for the meeting");
+					minimum = sc.nextInt();
+					if(minimum>1) {
+						System.out.println("Needs to be at least 1");
+					}
+					else {
+						op = 1;
+					}
 				}
-				else {
-					System.out.println("try again");
-				}
-				
-				}
-				while(op == 1) {
-				System.out.println("Open from 8H to 17H");
-				System.out.println("Enter the time: ");
-				time = sc.nextInt();
-				
-				if(time>7 && time<18) {
-					op = 9;
-				}
-				else {
-					System.out.println("try again");
-				}
-				
-				}
-				System.out.println("Enter the minimum number of participants needed for the meeting");
-				minimum = sc.nextInt();
+
 				Scanner sc1 = new Scanner(System.in);
 				String ip = "false";
 				while(!(ip.equals("next")))
@@ -168,10 +213,18 @@ public class ClientHandler
 				}
 				System.out.println("Enter the topic");
 				topic = sc1.nextLine();
-				RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic, list2, 
-						port);
-				Object obj = (Object) requestMsg;
-				sentToServer(obj);
+				if (meetingAvailability[date][time])
+				{
+					RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic, list2, 
+							port);
+					Object obj = (Object) requestMsg;
+					sentToServer(obj);
+				}
+				else
+				{
+					System.out.println("Cannot send request because you are not available at this date/time");
+				}
+				
 				break;
 				
 			}
@@ -221,15 +274,13 @@ public class ClientHandler
 				sentToServer(obj);
 				break;
 			}
-			// break the loop if user enters "bye" 
-			else if (inp == 9) 
+			else if (inp == 8) 
 			{
 				break;
 				
 			}
-			else if (inp == 8) 
+			else
 			{
-				break;
 				
 			}
 		}
@@ -366,6 +417,12 @@ public class ClientHandler
 			msg = (CancelMessage) obj;
 			msg.print();
 		}
+		if(obj.getClass() == CancelInviteMessage.class)
+		{
+			CancelInviteMessage msg = new CancelInviteMessage();
+			msg = (CancelInviteMessage) obj;
+			msg.print();
+		}
 		if(obj.getClass() == PositiveResponseToRequester.class)
 		{
 			PositiveResponseToRequester msg = new PositiveResponseToRequester();
@@ -417,24 +474,22 @@ public class ClientHandler
 	}
 	
 	
-	public static boolean validate(final String ip) {
-	    String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+	public static boolean validateIP(final String ip) 
+	{
+	    String pattern = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|"
+	    		+ "2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
 
-	    return ip.matches(PATTERN);
+	    return ip.matches(pattern);
 	}
 	
-	public static boolean isNumeric(String strNum) {
-	    if (strNum == null) {
-	        return false;
-	    }
-	    try {
-	        double d = Double.parseDouble(strNum);
-	    } catch (NumberFormatException nfe) {
-	        return false;
-	    }
-	    return true;
-	}
-	
+	public static boolean isNumeric(String str) { 
+		  try {  
+		    Integer.parseInt(str);
+		    return true;
+		  } catch(NumberFormatException e){  
+		    return false;  
+		  }  
+		}
 	
 	//calling the runner function for testing the server
 	public static void main(String args[]) throws IOException, InterruptedException 
@@ -444,49 +499,88 @@ public class ClientHandler
 		String input1 = "";
 		String temp = "";
 		int input2 = 0;
-		boolean ok = false;
-		
-		while(!ok) {
-		System.out.println("Enter IP Address of Server");
-		input1 = scan.nextLine();
-		
-		ok = validate(input1);
-		
+		boolean isTrue = false;
+		while(!isTrue) 
+		{
+			System.out.println("Enter IP Address of Server");
+			input1 = scan.nextLine();
+			
+			isTrue = validateIP(input1);
+			
 		}
 		
-		ok = false;
+		isTrue = false;
 		
-		while(!ok) {
-		System.out.println("Enter Your Port Number");
-		temp = scan.nextLine();
-		
-		ok = isNumeric(temp);
-		
+		while(!isTrue) 
+		{
+			System.out.println("Enter Your Port Number");
+			temp = scan.nextLine();
+			
+			isTrue = isNumeric(temp);
+			
 		}
 		
 		input2 = Integer.parseInt(temp);
+
+		ClientHandler c1 = new ClientHandler(input1, input2);
+		if(c1.dontuse) {
+			main(args);
+			return;
+		}
 		
-		
-		c1 = new ClientHandler(input1, input2);
 		c1.test();
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
+
+		
+
+	    String inpAddr = input1;
+        int inpPort = input2;
+        String display = new String("Client || IP Address: " + inpAddr 
+        		+ " || Port Number: " + inpPort);
+        
+        System.out.println("Successfully Started: " + display);
+		
+		JButton button;
+	    JFrame frame;
+	    JTextArea textArea;
+	    button = new JButton("Click This Button To Send A Message Or Create A Scenario");
+	    button.setPreferredSize(new Dimension(50, 50));
+	    button.setFont(new Font("Arial", Font.BOLD, 30));
+        frame = new JFrame(display);
+        textArea = new JTextArea(20, 60);
+        textArea.setText("Successfully Started: " + display);
+    	textArea.setFont(new Font("Arial", Font.BOLD, 30));
+    	textArea.setEditable(false);
+        textArea.setLineWrap(true);
+        frame.setLayout(new BorderLayout());
+        frame.add(textArea, BorderLayout.NORTH);
+        frame.add(button, BorderLayout.SOUTH);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        
+		button.addActionListener(new ActionListener() 
+		{ 
+		    public void actionPerformed(ActionEvent e) 
+		    {
+		        try 
+		        {
+		        	c1.runner();
+				} catch (IOException e1) 
+		        {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (InterruptedException e1) 
+		        {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    } 
+		});
+		/*while(true)
+		{
+			c1.runner();
+			Thread.sleep(2000);
+		}*/
     }
 
     
