@@ -14,6 +14,7 @@ import Messeges.AcceptMessage;
 import Messeges.AddClient;
 import Messeges.CancelMessage;
 import Messeges.CancelMessageFromRequester;
+import Messeges.CancelInviteMessage;
 import Messeges.ConfirmMessage;
 import Messeges.InformRequesterOfAddedClient;
 import Messeges.InformRequesterOfWithdrawal;
