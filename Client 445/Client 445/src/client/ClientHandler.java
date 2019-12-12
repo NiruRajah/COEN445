@@ -493,7 +493,6 @@ public class ClientHandler
 		c1.test();
 		while(true)
 		{
-
 			c1.runner();
 			Thread.sleep(2000);
 		}

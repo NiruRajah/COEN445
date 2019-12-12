@@ -77,8 +77,7 @@ public class ServerHandler
 						{
 							meetingsArray.get(i).getConfirmedClients().add(packet.getAddr());
 							meetingsArray.get(i).getDeclinedClients().remove(j);
-							meetingsArray.get(i).getPortsOfConfirmedClients().add(returnPort(packet.getAddr(), i,
-									packet.getPort()));
+							meetingsArray.get(i).getPortsOfConfirmedClients().add(returnPort(packet.getAddr(), i));
 							meetingsArray.get(i).incrementAcceptCounter();
 							
 							
@@ -86,7 +85,7 @@ public class ServerHandler
 									meetingsArray.get(i).getRoomNumber(), meetingsArray.get(i).getDate(),
 									meetingsArray.get(i).getTime());
 							sendToClient(new Packet(convertToBytes(confirmMsg), 
-									packet.getAddr(), returnPort(packet.getAddr(), i, packet.getPort())));
+									packet.getAddr(), returnPort(packet.getAddr(), i)));
 							InformRequesterOfAddedClient informReq = new InformRequesterOfAddedClient(
 									addMsg.getmTNumber(), packet.getAddr());
 							sendToClient(new Packet(convertToBytes(informReq), 
@@ -113,7 +112,7 @@ public class ServerHandler
 							"Meeting Has Already Been Cancelled",
 							meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 					sendToClient(new Packet(convertToBytes(cancelMsg), 
-							packet.getAddr(), returnPort(packet.getAddr(), i, packet.getPort())));
+							packet.getAddr(), returnPort(packet.getAddr(), i)));
 				}
 			}
 		}
@@ -145,14 +144,13 @@ public class ServerHandler
 							meetingsArray.get(i).getConfirmedClients().remove(j);
 							meetingsArray.get(i).getDeclinedClients().add(packet.getAddr());
 							meetingsArray.get(i).getPortsOfConfirmedClients().remove(j);
-							meetingsArray.get(i).getPortsOfDeclindedClients().add(returnPort(packet.getAddr(), i,
-									packet.getPort()));
+							meetingsArray.get(i).getPortsOfDeclindedClients().add(returnPort(packet.getAddr(), i));
 							CancelMessage cancelMsg = new CancelMessage(withdrawMsg.getmTNumber(), 
 								("As requested you have been withdrawn from: Meeting Number: " 
 									+ withdrawMsg.getmTNumber()), 
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							sendToClient(new Packet(convertToBytes(cancelMsg),
-									packet.getAddr(), returnPort(packet.getAddr(), i, packet.getPort())));
+									packet.getAddr(), returnPort(packet.getAddr(), i)));
 						}
 						
 					}
@@ -247,7 +245,7 @@ public class ServerHandler
 			}
 			if(checkX)
 			{
-				System.out.println("Ignored Invalid Cancel Message Request From Requester");
+				System.out.println("Ignored Invalid Cancel Message");
 				
 			}
 		}
@@ -326,12 +324,11 @@ public class ServerHandler
 		}
 	}
 	
-	public synchronized int returnPort(InetAddress addr, int index, int port)
+	public synchronized int returnPort(InetAddress addr, int index)
 	{
 		for(int k = 0; k < meetingsArray.get(index).getTotalClients().size(); k++)
 		{
-			if(meetingsArray.get(index).getTotalClients().get(k).equals(addr)
-					&& meetingsArray.get(index).getPortsOfTotalClients().get(k) == port)
+			if(meetingsArray.get(index).getTotalClients().get(k).equals(addr))
 			{
 				return meetingsArray.get(index).getPortsOfTotalClients().get(k);
 			}
@@ -357,8 +354,7 @@ public class ServerHandler
 					meetingsArray.get(i).incrementAcceptCounter();
 					meetingsArray.get(i).incrementTotalCounter();
 					meetingsArray.get(i).getConfirmedClients().add(packet.getAddr());
-					meetingsArray.get(i).getPortsOfConfirmedClients().add(returnPort(packet.getAddr(), i,
-							packet.getPort()));
+					meetingsArray.get(i).getPortsOfConfirmedClients().add(returnPort(packet.getAddr(), i));
 					if(meetingsArray.get(i).getTotalCounter() == 
 							meetingsArray.get(i).getTotalClients().size())
 					{
@@ -436,8 +432,7 @@ public class ServerHandler
 				{
 					meetingsArray.get(i).incrementTotalCounter();
 					meetingsArray.get(i).getDeclinedClients().add(packet.getAddr());
-					meetingsArray.get(i).getPortsOfDeclindedClients().add(returnPort(packet.getAddr(), i,
-							packet.getPort()));
+					meetingsArray.get(i).getPortsOfDeclindedClients().add(returnPort(packet.getAddr(), i));
 					if(meetingsArray.get(i).getTotalCounter() == 
 							meetingsArray.get(i).getTotalClients().size())
 					{
