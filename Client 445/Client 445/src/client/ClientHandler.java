@@ -516,12 +516,12 @@ public class ClientHandler
 	    JFrame frame;
 	    JTextArea textArea;
 	    button = new JButton("Click This Button To Send A Message Or Create A Scenario");
-	    button.setPreferredSize(new Dimension(100, 100));
-	    button.setFont(new Font("Arial", Font.BOLD, 40));
+	    button.setPreferredSize(new Dimension(50, 50));
+	    button.setFont(new Font("Arial", Font.BOLD, 30));
         frame = new JFrame(display);
-        textArea = new JTextArea(30, 60);
-    	textArea.setText("Successfully Started: " + display);
-    	textArea.setFont(new Font("Arial", Font.BOLD, 40));
+        textArea = new JTextArea(20, 60);
+        textArea.setText("Successfully Started: " + display);
+    	textArea.setFont(new Font("Arial", Font.BOLD, 30));
     	textArea.setEditable(false);
         textArea.setLineWrap(true);
         frame.setLayout(new BorderLayout());

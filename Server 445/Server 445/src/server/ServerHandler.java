@@ -609,6 +609,12 @@ public class ServerHandler
 			msg = (CancelMessage) obj;
 			msg.print();
 		}
+		if(obj.getClass() == CancelInviteMessage.class)
+		{
+			CancelInviteMessage msg = new CancelInviteMessage();
+			msg = (CancelInviteMessage) obj;
+			msg.print();
+		}
 		if(obj.getClass() == PositiveResponseToRequester.class)
 		{
 			PositiveResponseToRequester msg = new PositiveResponseToRequester();
@@ -663,16 +669,8 @@ public class ServerHandler
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
 		Scanner scan = new Scanner(System.in);
-		//System.out.println("Enter the Port Number");
-		//int port = scan.nextInt();
 		ServerHandler s1 = new ServerHandler();
-		s1.test(1337);
-		//InviteMessage inviteMsg = new InviteMessage(1, 2, 3, 
-				//"445", InetAddress.getByName("127.0.0.1"));
-		
-			//s1.sendToClient(new Packet(s1.convertToBytes(inviteMsg), InetAddress.getByName("127.0.0.1"), 
-					//1338));
-		
+		s1.test(2300);
     }
 
 	
