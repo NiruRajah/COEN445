@@ -37,7 +37,7 @@ public class ClientHandler
 	private Client client;
 	private int port;
 	private boolean[][] meetingAvailability = new boolean [8][25];
-	public static ClientHandler c1;
+	//public static ClientHandler c1;
 	
 	public ClientHandler(String inp1, int inp2)
 	{
@@ -489,9 +489,15 @@ public class ClientHandler
 		input2 = Integer.parseInt(temp);
 		
 		
-		c1 = new ClientHandler(input1, input2);
+		ClientHandler c1 = new ClientHandler(input1, input2);
 		c1.test();
-		c1.runner();
+		while(true)
+		{
+
+			c1.runner();
+			Thread.sleep(2000);
+		}
+		/*c1.runner();
 		Thread.sleep(2000);
 		c1.runner();
 		Thread.sleep(2000);
@@ -505,9 +511,7 @@ public class ClientHandler
 		Thread.sleep(2000);
 		c1.runner();
 		Thread.sleep(2000);
-		c1.runner();
-		Thread.sleep(2000);
-		c1.runner();
+		c1.runner();*/
 		
 		
     }
