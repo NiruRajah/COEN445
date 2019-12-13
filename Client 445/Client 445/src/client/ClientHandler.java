@@ -10,6 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
@@ -90,6 +93,18 @@ public class ClientHandler
 					checkForConfirmMessage(packet);
 					
 					checkForNegativeResponseToRequester(packet);
+					
+					try (FileOutputStream fos = new FileOutputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\client"
+							+ port + "BackUp.dat"));
+				             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
+						{
+						oos.writeObject(meetingAvailability);
+						oos.close();
+						fos.close();
+				        } catch (IOException e) 
+						{
+				            e.printStackTrace();
+				        }
 				}
 			});
 	}
@@ -468,6 +483,20 @@ public class ClientHandler
 	    return true;
 	}
 	
+	public synchronized void reading()
+	{
+		try (FileInputStream fis = new FileInputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\client"
+				+ port + "BackUp.dat"));
+	             ObjectInputStream ois = new ObjectInputStream(fis)) 
+		{
+				meetingAvailability = (boolean[][]) ois.readObject();
+	        	ois.close();
+	        	fis.close();
+	        } catch (IOException | ClassNotFoundException e) 
+			{
+	            //e.printStackTrace();
+	        }
+	}
 	
 	//calling the runner function for testing the server
 	public static void main(String args[]) throws IOException, InterruptedException 
@@ -505,7 +534,7 @@ public class ClientHandler
 		ClientHandler c1 = new ClientHandler(input1, input2);
 		c1.test();
 
-	    String inpAddr = input1;
+	    String inpAddr = InetAddress.getLocalHost().getHostAddress().toString();
         int inpPort = input2;
         String display = new String("Client || IP Address: " + inpAddr 
         		+ " || Port Number: " + inpPort);
@@ -550,6 +579,7 @@ public class ClientHandler
 				}
 		    } 
 		});
+		c1.reading();
 		/*while(true)
 		{
 			c1.runner();

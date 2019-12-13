@@ -2,10 +2,15 @@ package server;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -51,6 +56,17 @@ public class ServerHandler
 				
 				addParticipant(packet);
 				
+				try (FileOutputStream fos = new FileOutputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\serverBackUp.dat"));
+			             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
+					{
+					oos.writeObject(meetingsArray); 
+					oos.writeObject(room);
+					oos.close();
+					fos.close();
+			        } catch (IOException e) 
+					{
+			            e.printStackTrace();
+			        }
 			}
 		});
 	}
@@ -664,12 +680,28 @@ public class ServerHandler
 			msg.print();
 		}
 	}
+	
+	public synchronized void reading()
+	{
+		try (FileInputStream fis = new FileInputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\serverBackUp.dat"));
+	             ObjectInputStream ois = new ObjectInputStream(fis)) 
+		{
+	        	meetingsArray = (ArrayList<Meetings>) ois.readObject();
+	        	room = (Room) ois.readObject();
+	        	ois.close();
+	        	fis.close();
+	        } catch (IOException | ClassNotFoundException e) 
+			{
+	            //e.printStackTrace();
+	        }
+	}
 
 	//calls the test function
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
 		ServerHandler s1 = new ServerHandler();
 		s1.test(1337);
+		s1.reading();
     }
 
 	
