@@ -1,6 +1,8 @@
 package Rooms;
 
-public class Room 
+import java.io.Serializable;
+
+public class Room implements Serializable
 {
 	
 	private Meetings[][][] bookedRoom = new Meetings [8][25][2];

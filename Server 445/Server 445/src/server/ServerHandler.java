@@ -2,13 +2,23 @@ package server;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Logger;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 
 import data.Packet;
 import data.PacketHandler;
@@ -22,6 +32,9 @@ public class ServerHandler
 	private int mT;
 	private ArrayList<Meetings> meetingsArray = new ArrayList<Meetings>();
 	private Room room;
+	StringBuilder participants;
+	static Logger logger = Logger.getLogger(ServerHandler.class.getName());  
+    static FileHandler fh; 
 	
 	public synchronized void test(int port) throws IOException //receiving and testing all messages
 	{
@@ -34,7 +47,7 @@ public class ServerHandler
 			@Override
 			public synchronized void process(Packet packet) throws ClassNotFoundException, IOException 
 			{
-				System.out.print("Received From Client:");
+				System.out.print("Received From Client: ");
 				print(convertToObject(packet));
 				
 				//These are functions for checking what type of message was received and what to do depending
@@ -50,6 +63,18 @@ public class ServerHandler
 				withdrawMessageDetector(packet);
 				
 				addParticipant(packet);
+				
+				try (FileOutputStream fos = new FileOutputStream(new File("/Users/Jad/Documents/serverBackUp.dat"));
+			             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
+					{
+					oos.writeObject(meetingsArray); 
+					oos.writeObject(room);
+					oos.close();
+					fos.close();
+			        } catch (IOException e) 
+					{
+			            e.printStackTrace();
+			        }
 				
 			}
 		});
@@ -170,7 +195,8 @@ public class ServerHandler
 								meetingsArray.get(i).getDate(), 
 								meetingsArray.get(i).getTime(), 
 								meetingsArray.get(i).getTopic(),
-								meetingsArray.get(i).getRequester());
+								meetingsArray.get(i).getRequester(),
+								meetingsArray.get(i).getPortOfRequester());
 						for(int j = 0; j < meetingsArray.get(i).getDeclinedClients().size(); j++)
 						{
 							if(!(meetingsArray.get(i).getDeclinedClients().get(j).equals(packet.getAddr())))
@@ -385,7 +411,8 @@ public class ServerHandler
 							PositiveResponseToRequester posMsg = new PositiveResponseToRequester(
 									meetingsArray.get(i).getrQ(),
 									acceptMsg.getmTNumber(), confirmMsg.getRoomNumber(), 
-									meetingsArray.get(i).getConfirmedClients(),
+									meetingsArray.get(i).getConfirmedClients(), meetingsArray.get(i).getPortsOfConfirmedClients(),
+									meetingsArray.get(i).getTopic(),
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
 							sendToClient(new Packet(convertToBytes(posMsg), 
@@ -410,6 +437,7 @@ public class ServerHandler
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime(), 
 									meetingsArray.get(i).getMinimum(),
 									meetingsArray.get(i).getConfirmedClients(),
+									meetingsArray.get(i).getPortsOfConfirmedClients(),
 									meetingsArray.get(i).getTopic(),
 									meetingsArray.get(i).getmT());
 							
@@ -461,7 +489,8 @@ public class ServerHandler
 							PositiveResponseToRequester posMsg = new PositiveResponseToRequester(
 									meetingsArray.get(i).getrQ(),
 									rejectMsg.getmTNumber(), confirmMsg.getRoomNumber(), 
-									meetingsArray.get(i).getConfirmedClients(),
+									meetingsArray.get(i).getConfirmedClients(), meetingsArray.get(i).getPortsOfConfirmedClients(),
+									meetingsArray.get(i).getTopic(),
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime());
 							
 							sendToClient(new Packet(convertToBytes(posMsg), 
@@ -485,6 +514,7 @@ public class ServerHandler
 									meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime(), 
 									meetingsArray.get(i).getMinimum(),
 									meetingsArray.get(i).getConfirmedClients(),
+									meetingsArray.get(i).getPortsOfConfirmedClients(),
 									meetingsArray.get(i).getTopic(),
 									meetingsArray.get(i).getmT());
 							
@@ -517,7 +547,7 @@ public class ServerHandler
 			if(room.checkRoomIsFree(requestMsg.getDate(), requestMsg.getTime()))
 			{
 				InviteMessage inviteMsg = new InviteMessage(mT, requestMsg.getDate(), requestMsg.getTime(), 
-						requestMsg.getTopic(), parts.getRequester());
+						requestMsg.getTopic(), parts.getRequester(), parts.getPortOfRequester());
 				for(int i = 0; i < parts.getTotalClients().size(); i++)
 				{
 					sendToClient(new Packet(convertToBytes(inviteMsg), parts.getTotalClients().get(i), 
@@ -571,105 +601,249 @@ public class ServerHandler
 		{
 			RequestMessage msg = new RequestMessage();
 			msg = (RequestMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			participants = new StringBuilder();
+			for (int i = 0; i < msg.getListOfParticipants().size(); i++) 
+			{
+			    participants.append(msg.getListOfParticipants().get(i) + " Port: " + msg.getPortListOfParticipants().get(i) + " | ");
+			}
+			
+			logger.info("Received From Client [" + msg.getPortOfRQ() + "]: | Request Message: | RQ: " + msg.getRQ() + " | date: " + msg.getDate() 
+			  + " | time: " + msg.getTime() + " | minimum: " + msg.getMinimum()
+			  + " | participants: " + participants + "topic: "
+					  + msg.getTopic() + "\n");
 		}
 		if(obj.getClass() == InviteMessage.class)
 		{
 			InviteMessage msg = new InviteMessage();
 			msg = (InviteMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Invite Message: | MT: " + msg.getMT() + " | Date: "
+					+ msg.getDate() +" | Time: " + msg.getTime() + " | Topic: " + msg.getTopic()
+					+ " | RequesterIP: " + msg.getRequesterIP() + "\n");
 		}
 		if(obj.getClass() == AcceptMessage.class)
 		{
 			AcceptMessage msg = new AcceptMessage();
 			msg = (AcceptMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Accept Message: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == RejectMessage.class)
 		{
 			RejectMessage msg = new RejectMessage();
 			msg = (RejectMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Reject Message: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == RoomUnavailableResponse.class)
 		{
 			RoomUnavailableResponse msg = new RoomUnavailableResponse();
 			msg = (RoomUnavailableResponse) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Room Unavailable Message: | RQ: " + msg.getRQ()
+			+ " | " + msg.getUnavailable() + "\n");
 		}
 		if(obj.getClass() == ConfirmMessage.class)
 		{
 			ConfirmMessage msg = new ConfirmMessage();
 			msg = (ConfirmMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Confirm Message: | MT: " + msg.getmTNumber() + " | Room Number: "
+					+ msg.getRoomNumber() + "\n");
 		}
 		if(obj.getClass() == CancelMessage.class)
 		{
 			CancelMessage msg = new CancelMessage();
 			msg = (CancelMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Cancel Message: | MT: " + msg.getmTNumber() + " | Reason: " + msg.getReason() + "\n");
 		}
 		if(obj.getClass() == CancelInviteMessage.class)
 		{
 			CancelInviteMessage msg = new CancelInviteMessage();
 			msg = (CancelInviteMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Cancel Message: | MT: " + msg.getmTNumber() + " | Reason: " + msg.getReason() + "\n");
 		}
 		if(obj.getClass() == PositiveResponseToRequester.class)
 		{
 			PositiveResponseToRequester msg = new PositiveResponseToRequester();
 			msg = (PositiveResponseToRequester) obj;
-			msg.print();
+			//msg.print();
+			
+			participants = new StringBuilder();
+			for (int i = 0; i < msg.getConfirmedClients().size(); i++) 
+			{
+			    participants.append(msg.getConfirmedClients().get(i) + " Port: " + msg.getPortOfConfirmedParticipants().get(i) + " | ");
+			}
+			
+			logger.info(" | Positive Response To Requester: | RQ: " + msg.getrQNumber() + " | MT: "
+					+ msg.getmTNumber() + " | Room Number: " + msg.getRoomNumber() + " | Confirmed Participants: " + participants + "topic: \n");
 		}
 		if(obj.getClass() == NegativeResponseToRequester.class)
 		{
 			NegativeResponseToRequester msg = new NegativeResponseToRequester();
 			msg = (NegativeResponseToRequester) obj;
-			msg.print();
+			//msg.print();
+			
+			participants = new StringBuilder();
+			for (int i = 0; i < msg.getConfirmedCLients().size(); i++) 
+			{
+			    participants.append(msg.getConfirmedCLients().get(i) + " Port: " + msg.getPortOfConfirmedParticipants().get(i) + " | ");
+			}
+			
+			logger.info(" | Negative Reponse To Requester: | RQ: " + msg.getRQ() + " | date: " + msg.getDate() 
+			  + " | time: " + msg.getTime() + " | minimum: " + msg.getMinimum()
+			  + " | clients: " + participants + "topic: " + msg.getTopic() + "\n");
 		}
 		if(obj.getClass() == WithdrawMessage.class)
 		{
 			WithdrawMessage msg = new WithdrawMessage();
 			msg = (WithdrawMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Withdraw Message: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == InformRequesterOfWithdrawal.class)
 		{
 			InformRequesterOfWithdrawal msg = new InformRequesterOfWithdrawal();
 			msg = (InformRequesterOfWithdrawal) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Inform Requester Of Withdrawal: | MT: " + msg.getmTNumber() + " | IP: " 
+				+ msg.getiPAddress() + "\n");
 		}
 		if(obj.getClass() == AddClient.class)
 		{
 			AddClient msg = new AddClient();
 			msg = (AddClient) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Add Client: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == InformRequesterOfAddedClient.class)
 		{
 			InformRequesterOfAddedClient msg = new InformRequesterOfAddedClient();
 			msg = (InformRequesterOfAddedClient) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Inform Requester Of Added Client: | MT: " + msg.getmTNumber() + " | IP: " 
+				+ msg.getiPAddress() + "\n");
 		}
 		if(obj.getClass() == RoomChangeMessage.class)
 		{
 			RoomChangeMessage msg = new RoomChangeMessage();
 			msg = (RoomChangeMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Room Change Message: | MT: " + msg.getmTNumber() + " | Room Number: "
+				+ msg.getRoomNumber() + "\n");
 		}
 		if(obj.getClass() == CancelMessageFromRequester.class)
 		{
 			CancelMessageFromRequester msg = new CancelMessageFromRequester();
 			msg = (CancelMessageFromRequester) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Cancel Message From Requester: | MT: " + msg.getmTNumber() + "\n");
 		}
 	}
+	
+	public static void initiateTextFile() {
+		 try {  
 
+		        fh = new FileHandler("/Users/Jad/Documents/ServerLog.txt");  
+		        logger.addHandler(fh);
+		        SimpleFormatter formatter = new SimpleFormatter();  
+		        fh.setFormatter(formatter);  
+		        
+
+		    } catch (SecurityException e) {  
+		        e.printStackTrace();  
+		    } catch (IOException e) {  
+		        e.printStackTrace();  
+		    }
+	}
+	
+	public synchronized void reading()
+	{
+		try (FileInputStream fis = new FileInputStream(new File("/Users/Jad/Documents/serverBackUp.dat"));
+	             ObjectInputStream ois = new ObjectInputStream(fis)) 
+		{
+	        	meetingsArray = (ArrayList<Meetings>) ois.readObject();
+	        	room = (Room) ois.readObject();
+	        	ois.close();
+	        	fis.close();
+	        } catch (IOException | ClassNotFoundException e) 
+			{
+	            //e.printStackTrace();
+	        }
+	}
+	
+	public static void deleteBackup() throws FileNotFoundException {
+		//PrintWriter pw = new PrintWriter("/Users/Jad/Documents/serverBackUp.dat");
+		//pw.print("");
+		//pw.close();
+		
+		final File folder = new File("/Users/Jad/Documents");
+		final File[] files = folder.listFiles( new FilenameFilter() {
+		    @Override
+		    public boolean accept( final File dir,
+		                           final String name ) {
+		        return name.contains("BackUp.dat");
+		    }
+		} );
+		for ( final File file : files ) {
+		    if ( !file.delete() ) {
+		        System.err.println( "Can't remove " + file.getAbsolutePath() );
+		    }
+		}
+		}
+	
+	
+	
+	
 	//calls the test function
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
+		Scanner scan = new Scanner(System.in);
+		boolean isTrue = false;
+		String input1 = "";
+		String temp = "";
+		int input2 = 0;
+		
+		while(!isTrue) 
+		{
+			System.out.println("Do you want to restore your last session? Yes/No");
+			input1 = scan.nextLine();
+			
+			if(input1.contentEquals("Yes")) {
+				isTrue = true;
+				System.out.println("Session successfully restored.");
+			} else if(input1.contentEquals("No")) {
+				deleteBackup();
+				initiateTextFile();
+				isTrue = true;
+			} else {
+				System.out.println("Invalid input!");
+			}
+			
+		}
+		
+		isTrue = false;
+		
 		ServerHandler s1 = new ServerHandler();
 		s1.test(1337);
+		s1.reading();
     }
 
 	

@@ -1,0 +1,38 @@
+package server;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class ServerDB {
+	
+	private static Connection con;
+	private static boolean hasData = false;
+	
+	public void getConnection() throws ClassNotFoundException, SQLException {
+		
+		Class.forName("org.sqlite.JDBC");
+		con = DriverManager.getConnection("jdbc:sqlite:Server.db");
+		initialise();
+	}
+	
+	public void initialise() throws SQLException {
+		if(!hasData) {
+			hasData = true;
+		}
+		
+		Statement s = con.createStatement();
+		//ResultSet res = state.executeQuery("SELECT name FROM sqlite_master WHERE type='table' and name='user'");
+		s.execute("CREATE TABLE client(id integer, client varchar(60), room varchar(60), primary key(id));");
+		
+		PreparedStatement ps = con.prepareStatement("INSERT INTO client values(?,?,?);");
+		ps.setString(2, "Client 10");
+		ps.setString(3, "118");
+		ps.execute();
+			
+		}
+
+}

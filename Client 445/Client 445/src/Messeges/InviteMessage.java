@@ -10,6 +10,7 @@ public class InviteMessage implements Serializable
 	private int time;
 	private String topic;
 	private InetAddress requesterIP;
+	private int requesterPort;
 	
 	public InviteMessage()
 	{
@@ -18,17 +19,27 @@ public class InviteMessage implements Serializable
 		this.time = 0;
 		this.topic = null;
 		this.requesterIP = null;
+		this.requesterPort = 0;
 	}
 	
-	public InviteMessage(int mT, int date, int time, String topic, InetAddress inetAddress) 
+	public InviteMessage(int mT, int date, int time, String topic, InetAddress inetAddress, int requesterPort) 
 	{
 		this.mTNumber = mT;
 		this.date = date;
 		this.time = time;
 		this.topic = topic;
 		this.requesterIP = inetAddress;
+		this.requesterPort = requesterPort;
 	}
 
+
+	public int getRequesterPort() {
+		return requesterPort;
+	}
+
+	public void setRequesterPort(int requesterPort) {
+		this.requesterPort = requesterPort;
+	}
 
 	public int getMT() {
 		return mTNumber;

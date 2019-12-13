@@ -13,6 +13,7 @@ public class NegativeResponseToRequester implements Serializable
 	private ArrayList<InetAddress> confirmedParticipants;
 	private String topic;
 	private int mTNumber;
+	private ArrayList<Integer> portOfConfirmedParticipants;
 	
 	public NegativeResponseToRequester()
 	{
@@ -20,7 +21,7 @@ public class NegativeResponseToRequester implements Serializable
 	}
 	
 	public NegativeResponseToRequester(int rQ, int date, int time, int minimum, 
-			ArrayList<InetAddress> confirmedClients, String topic, int mT) 
+			ArrayList<InetAddress> confirmedClients, ArrayList<Integer> portOfConfirmedParticipants, String topic, int mT) 
 	{
 		this.rQNumber = rQ;
 		this.date = date;
@@ -29,6 +30,15 @@ public class NegativeResponseToRequester implements Serializable
 		this.confirmedParticipants = confirmedClients;
 		this.topic = topic;
 		this.mTNumber = mT;
+		this.portOfConfirmedParticipants = portOfConfirmedParticipants;
+	}
+
+	public ArrayList<Integer> getPortOfConfirmedParticipants() {
+		return portOfConfirmedParticipants;
+	}
+
+	public void setPortOfConfirmedParticipants(ArrayList<Integer> portOfConfirmedParticipants) {
+		this.portOfConfirmedParticipants = portOfConfirmedParticipants;
 	}
 
 	public int getRQ() {
