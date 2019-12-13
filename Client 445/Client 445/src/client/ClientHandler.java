@@ -18,6 +18,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -59,11 +61,19 @@ public class ClientHandler
 	private int port;
 	private boolean breaker;
 	private boolean[][] meetingAvailability = new boolean [8][25];
+	public boolean dontuse = false;
 	//public static ClientHandler c1;
 	
-	public ClientHandler(String inp1, int inp2)
+	public ClientHandler(String inp1, int inp2) throws SocketException, UnknownHostException 
 	{
+		
 		this.client = new Client(inp1, inp2);
+		
+		if(client.dontuse) {
+			dontuse = true;
+			return;
+		}
+		
 		this.port = inp2;
 		this.breaker = true;
 		for (int i = 1; i <= 7; i++) //set the meeting availability scheduler to all true (available)
@@ -74,7 +84,6 @@ public class ClientHandler
 			}
 		}
 	}
-	
 	public synchronized void test() throws IOException 
 	{
 		client.receive(new PacketHandler() 
@@ -130,15 +139,17 @@ public class ClientHandler
 			@SuppressWarnings("resource")
 			Scanner sc = new Scanner(System.in);
 			int inp = 0;
+			String temp;
+			temp = sc.nextLine();
 			
-			if(sc.hasNextInt()) 
-			{
-			   inp = sc.nextInt();
+			if(isNumeric(temp)) {
+				inp = Integer.parseInt(temp);
 			}
-			else
-			{
-				
+			else {
+				System.out.println("Invalid Entry. Click button to try again.");
+				break;
 			}
+
 			if(inp == 1)
 			{
 				inp = 9;
@@ -185,21 +196,50 @@ public class ClientHandler
 					}
 					
 				}
+				
+				op = 1;
+				while(op == 1) {
 				System.out.println("Enter the minimum number of participants needed for the meeting");
 				minimum = sc.nextInt();
+				if(minimum < 1) {
+					System.out.println("try again");
+				}
+				else {
+					op = 0;
+				}
+				
+				}
+				
 				Scanner sc1 = new Scanner(System.in);
 				String ip = "false";
-				while(!(ip.equals("next")))
+				op = 1;
+				int count = 0;
+				while(op == 1)
 				{
 					System.out.println("Enter all the attending participant's ip addresses and type in 'next' when done");
 					ip = sc1.nextLine();
 					if(!(ip.equals("next")))
 					{
+						if(validateIP(ip)) {
+						count++;
 						System.out.println("added: " + InetAddress.getByName(ip));
 						list1.add(InetAddress.getByName(ip));
 						System.out.println("Enter the port number of attending participant");
 						int portX = sc.nextInt();
 						list2.add(portX);
+						}
+						else {
+							System.out.println("try again");
+						}
+					}
+					
+					if((ip.equals("next"))){
+						if(count >= minimum) {
+							op = 0;
+						}
+						else {
+							System.out.println("Need to add "+(minimum-count)+" more participants");
+						}
 					}
 					
 				}
@@ -222,48 +262,100 @@ public class ClientHandler
 			}
 			else if(inp == 2)
 			{
-				System.out.println("Enter the Meeting Number of the meeting you want to cancel");
-				//Scanner scZ = new Scanner(System.in);
+				int op = 0;
 				int inpx = 0;
-				inpx = sc.nextInt();
-				CancelMessageFromRequester cancelMsg = new CancelMessageFromRequester(inpx);
-				Object obj = (Object) cancelMsg;
-				sentToServer(obj);
+				
+				while(op == 0) {
+				System.out.println("Enter the Meeting Number of the meeting you want to cancel");
+				temp = sc.nextLine();
+				if(isNumeric(temp)) {
+					inpx = Integer.parseInt(temp);
+					CancelMessageFromRequester cancelMsg = new CancelMessageFromRequester(inpx);
+					Object obj = (Object) cancelMsg;
+					sentToServer(obj);
+					op = 1;
+				}
+				else {
+					System.out.println("try again");
+				}
+				
+				}
 				break;
 			}
 			else if(inp == 3)
 			{
-				System.out.println("Enter the Meeting Number of the meeting you want to withdraw from");
+				int op = 0;
 				int inpx = 0;
-				inpx = sc.nextInt();
-				WithdrawMessage withdrawMsg = new WithdrawMessage(inpx);
-				Object obj = (Object) withdrawMsg;
-				sentToServer(obj);
+				
+				while(op == 0) {
+					System.out.println("Enter the Meeting Number of the meeting you want to withdraw from");
+					temp = sc.nextLine();
+					if(isNumeric(temp)) {
+						inpx = Integer.parseInt(temp);
+						WithdrawMessage withdrawMsg = new WithdrawMessage(inpx);
+						Object obj = (Object) withdrawMsg;
+						sentToServer(obj);
+						op = 1;
+					}
+					else {
+						System.out.println("try again");
+					}
+				}
+
 				break;
 			}
 			else if(inp == 4)
 			{
-				System.out.println("Enter the Meeting Number of the room you want to add yourself to");
+				int op = 0;
 				int inpx = 0;
-				inpx = sc.nextInt();
-				AddClient addMsg = new AddClient(inpx);
-				Object obj = (Object) addMsg;
-				sentToServer(obj);
+				
+				while(op == 0) {
+					System.out.println("Enter the Meeting Number of the room you want to add yourself to");
+					temp = sc.nextLine();
+					if(isNumeric(temp)) {
+						inpx = Integer.parseInt(temp);
+						AddClient addMsg = new AddClient(inpx);
+						Object obj = (Object) addMsg;
+						sentToServer(obj);
+						op = 1;
+					}
+					else {
+						System.out.println("try again");
+					}
+				}
+
 				break;
 			}
 			else if(inp == 5)
 			{
 				@SuppressWarnings("resource")
+				int op = 0;
+				int inpx = 0;
 				Scanner sc2 = new Scanner(System.in);
 				String roomNumber = null;
-				System.out.println("Enter the Meeting Number of the room you want to create the scenario for");
-				int inpx = 0;
-				inpx = sc.nextInt();
-				System.out.println("Enter the Room Number of the room you want to create the scenario for");
-				roomNumber = sc2.nextLine();
-				RoomChangeMessage roomMsg = new RoomChangeMessage(inpx, roomNumber);
-				Object obj = (Object) roomMsg;
-				sentToServer(obj);
+				while(op == 0) {
+					System.out.println("Enter the Meeting Number of the room you want to create the scenario for");
+					temp = sc.nextLine();
+					if(isNumeric(temp)) {
+						inpx = Integer.parseInt(temp);
+						System.out.println("Enter the Room Number of the room you want to create the scenario for");
+						temp = sc.nextLine();
+						if(isNumeric(temp)) {
+							roomNumber = temp;
+							RoomChangeMessage roomMsg = new RoomChangeMessage(inpx, roomNumber);
+							Object obj = (Object) roomMsg;
+							sentToServer(obj);
+							op = 1;
+						}
+						else {
+							System.out.println("try again");
+						}
+					}
+					else {
+						System.out.println("try again");
+					}
+				}
+
 				break;
 			}
 			else if (inp == 8) 
@@ -275,6 +367,8 @@ public class ClientHandler
 			{
 				
 			}
+			
+			break;
 		}
 	
 	}
@@ -474,14 +568,14 @@ public class ClientHandler
 	    return ip.matches(pattern);
 	}
 	
-	public static boolean isNumeric(String stringNum) 
-	{
-	    if (stringNum == null) 
-	    {
-	        return false;
-	    }
-	    return true;
-	}
+	public static boolean isNumeric(String str) { 
+		  try {  
+		    Integer.parseInt(str);
+		    return true;
+		  } catch(NumberFormatException e){  
+		    return false;  
+		  }  
+		}
 	
 	public synchronized void reading()
 	{
@@ -532,6 +626,10 @@ public class ClientHandler
 		
 		
 		ClientHandler c1 = new ClientHandler(input1, input2);
+		if(c1.dontuse) {
+			main(args);
+			return;
+		}
 		c1.test();
 
 	    String inpAddr = InetAddress.getLocalHost().getHostAddress().toString();
