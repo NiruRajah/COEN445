@@ -1,7 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,30 +19,20 @@ public class Client implements Runnable
 	private boolean running;
 	private DatagramSocket socket;
 	private Thread process, send, receive;
-	public boolean dontuse = false;
 	
-	public Client(String address, int port) throws SocketException, UnknownHostException 
+	public Client(String address, int port) 
 	{
-		try {
-			socket = new DatagramSocket(port);
-		}
-		catch(BindException e) {
-			System.out.println("Already In use. Restarting...");
-			System.out.println("");
-			dontuse = true;
-			return;
-		}
-		
 		try 
 		{
+			socket = new DatagramSocket(port);
 			connection = new Connection(socket, InetAddress.getByName(address), port);
 			this.init();
-		} catch (SocketException | UnknownHostException e ) 
+		} catch (SocketException | UnknownHostException e) 
 		{
 			e.printStackTrace();
 		}
-		
-	}
+	}	
+
 	private void init() 
 	{
 		process = new Thread(this, "server_process");

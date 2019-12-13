@@ -12,17 +12,21 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Logger;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 
+import javax.sound.sampled.Port;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -58,22 +62,19 @@ public class ClientHandler
 {
 
 	private Client client;
-	private int port;
+	private static int port;
+	private boolean breaker;
 	private boolean[][] meetingAvailability = new boolean [8][25];
-	public boolean dontuse = false;
+	StringBuilder participants;
+	static Logger logger = Logger.getLogger(ClientHandler.class.getName());  
+    static FileHandler fh;
 	//public static ClientHandler c1;
 	
-	public ClientHandler(String inp1, int inp2) throws SocketException, UnknownHostException 
+	public ClientHandler(String inp1, int inp2)
 	{
-		
 		this.client = new Client(inp1, inp2);
-		
-		if(client.dontuse) {
-			dontuse = true;
-			return;
-		}
-		
 		this.port = inp2;
+		this.breaker = true;
 		for (int i = 1; i <= 7; i++) //set the meeting availability scheduler to all true (available)
 		{
 			for (int j = 1; j <= 24; j++)
@@ -82,6 +83,7 @@ public class ClientHandler
 			}
 		}
 	}
+	
 	public synchronized void test() throws IOException 
 	{
 		client.receive(new PacketHandler() 
@@ -91,7 +93,7 @@ public class ClientHandler
 				{
 
 					
-					System.out.print("Received From Server:");
+					System.out.print("Received From Server: ");
 					print(convertToObject(packet));
 					//These are functions for checking what type of message was received and what to do depending
 					//on what the messages were
@@ -101,12 +103,11 @@ public class ClientHandler
 					
 					checkForNegativeResponseToRequester(packet);
 					
-					try (FileOutputStream fos = new FileOutputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\client"
+					try (FileOutputStream fos = new FileOutputStream(new File("/Users/Jad/Documents/client"
 							+ port + "BackUp.dat"));
 				             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
 						{
 						oos.writeObject(meetingAvailability);
-						oos.writeObject(port);
 						oos.close();
 						fos.close();
 				        } catch (IOException e) 
@@ -138,17 +139,15 @@ public class ClientHandler
 			@SuppressWarnings("resource")
 			Scanner sc = new Scanner(System.in);
 			int inp = 0;
-			String temp;
-			temp = sc.nextLine();
 			
-			if(isNumeric(temp)) {
-				inp = Integer.parseInt(temp);
+			if(sc.hasNextInt()) 
+			{
+			   inp = sc.nextInt();
 			}
-			else {
-				System.out.println("Invalid Entry. Click button to try again.");
-				break;
+			else
+			{
+				
 			}
-
 			if(inp == 1)
 			{
 				inp = 9;
@@ -168,20 +167,14 @@ public class ClientHandler
 				{
 					System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
 					System.out.println("Enter the day (#): ");
-					temp = sc.nextLine();
-					if(isNumeric(temp)) {
-						date = Integer.parseInt(temp);
-						if(date>0 && date<6) 
-						{
-							op = 1;
-						}
-						else {
-							System.out.println("Try again by entering a number between 1 and 5 for the date. (No letters or signs)");
-						}
+					date = sc.nextInt();
+					if(date>0 && date<6) 
+					{
+						op = 1;
 					}
 					else 
 					{
-						System.out.println("Try again by entering a number between 1 and 5 for the date. (No letters or signs)");
+						System.out.println("try again");
 					}
 				
 				}
@@ -189,81 +182,33 @@ public class ClientHandler
 				{
 					System.out.println("Open from 8H to 17H");
 					System.out.println("Enter the time: ");
-					temp = sc.nextLine();
-					if(isNumeric(temp)) {
-						time = Integer.parseInt(temp);
-						if(time>7 && time<18) 
-						{
-							op = 9;
-						}
-						else {
-							System.out.println("Try again by entering a number between 8 and 17 for the time. (No letters or signs)");				
-						}
+					time = sc.nextInt();
+					
+					if(time>7 && time<18) 
+					{
+						op = 9;
 					}
 					else 
 					{
-						System.out.println("Try again by entering a number between 8 and 17 for the time. (No letters or signs)");
+						System.out.println("try again");
 					}
 					
 				}
-				
-				op = 1;
-				while(op == 1) {
 				System.out.println("Enter the minimum number of participants needed for the meeting");
-				temp = sc.nextLine();
-				if(isNumeric(temp)) {
-					minimum = Integer.parseInt(temp);
-					if(minimum < 1) {
-						System.out.println("Try again by entering a number bigger than 0 for the minimum number of participants. (No letters or signs)");
-					}
-					else {
-						op = 0;
-					}
-				}
-				else {
-					System.out.println("Try again by entering a number bigger than 0 for the minimum number of participants. (No letters or signs)");
-				}
-				
-				}
-				
+				minimum = sc.nextInt();
 				Scanner sc1 = new Scanner(System.in);
 				String ip = "false";
-				op = 1;
-				int count = 0;
-				int portX = 0;
-				while(op == 1)
+				while(!(ip.equals("next")))
 				{
-					System.out.println("Enter all the attending participant's IP Addresses and type in 'next' when done");
+					System.out.println("Enter all the attending participant's ip addresses and type in 'next' when done");
 					ip = sc1.nextLine();
 					if(!(ip.equals("next")))
 					{
-						if(validateIP(ip)) {
-						count++;
 						System.out.println("added: " + InetAddress.getByName(ip));
-						System.out.println("Enter the Port Number of attending participant");
-						temp = sc1.nextLine();
-						if(isNumeric(temp)) {
-							portX = Integer.parseInt(temp);
-							list2.add(portX);
-							list1.add(InetAddress.getByName(ip));
-						}
-						else {
-							System.out.println("Try again by entering a correct Port Number. (No letters or signs)");	
-							System.out.println("removed: " + InetAddress.getByName(ip));
-						}
-						}
-						else {
-							System.out.println("Try again by entering a correct IP Address with format ###.###.###.### (No letters or signs) or 'next' when done");	
-						}
-					}
-					
-					if((ip.equals("next"))){
-						if(count >= minimum) {
-							op = 0;
-						}
-						else {
-							System.out.println("Need to add "+(minimum-count)+" more participants to fill up minimum requirements");
-						}
+						list1.add(InetAddress.getByName(ip));
+						System.out.println("Enter the port number of attending participant");
+						int portX = sc.nextInt();
+						list2.add(portX);
 					}
 					
 				}
@@ -271,8 +216,7 @@ public class ClientHandler
 				topic = sc1.nextLine();
 				if (meetingAvailability[date][time])
 				{
-					RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic, list2, 
-							port);
+					RequestMessage requestMsg = new RequestMessage(rQ, date, time, minimum, list1, topic, list2, port, InetAddress.getLocalHost().getHostAddress().toString());
 					Object obj = (Object) requestMsg;
 					sentToServer(obj);
 				}
@@ -286,101 +230,48 @@ public class ClientHandler
 			}
 			else if(inp == 2)
 			{
-				int op = 0;
-				int inpx = 0;
-				
-				while(op == 0) {
 				System.out.println("Enter the Meeting Number of the meeting you want to cancel");
-				temp = sc.nextLine();
-				if(isNumeric(temp)) {
-					inpx = Integer.parseInt(temp);
-					CancelMessageFromRequester cancelMsg = new CancelMessageFromRequester(inpx);
-					Object obj = (Object) cancelMsg;
-					sentToServer(obj);
-					op = 1;
-				}
-				else {
-					System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");	
-				}
-				
-				}
+				//Scanner scZ = new Scanner(System.in);
+				int inpx = 0;
+				inpx = sc.nextInt();
+				CancelMessageFromRequester cancelMsg = new CancelMessageFromRequester(inpx);
+				Object obj = (Object) cancelMsg;
+				sentToServer(obj);
 				break;
 			}
 			else if(inp == 3)
 			{
-				int op = 0;
+				System.out.println("Enter the Meeting Number of the meeting you want to withdraw from");
 				int inpx = 0;
-				
-				while(op == 0) {
-					System.out.println("Enter the Meeting Number of the meeting you want to withdraw from");
-					temp = sc.nextLine();
-					if(isNumeric(temp)) {
-						inpx = Integer.parseInt(temp);
-						WithdrawMessage withdrawMsg = new WithdrawMessage(inpx);
-						Object obj = (Object) withdrawMsg;
-						sentToServer(obj);
-						op = 1;
-					}
-					else {
-						System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");
-					}
-				}
-
+				inpx = sc.nextInt();
+				WithdrawMessage withdrawMsg = new WithdrawMessage(inpx);
+				Object obj = (Object) withdrawMsg;
+				sentToServer(obj);
 				break;
 			}
 			else if(inp == 4)
 			{
-				int op = 0;
+				System.out.println("Enter the Meeting Number of the room you want to add yourself to");
 				int inpx = 0;
-				
-				while(op == 0) {
-					System.out.println("Enter the Meeting Number of the room you want to add yourself to");
-					temp = sc.nextLine();
-					if(isNumeric(temp)) {
-						inpx = Integer.parseInt(temp);
-						AddClient addMsg = new AddClient(inpx);
-						Object obj = (Object) addMsg;
-						sentToServer(obj);
-						op = 1;
-					}
-					else {
-						System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");
-					}
-				}
-
+				inpx = sc.nextInt();
+				AddClient addMsg = new AddClient(inpx);
+				Object obj = (Object) addMsg;
+				sentToServer(obj);
 				break;
 			}
 			else if(inp == 5)
 			{
 				@SuppressWarnings("resource")
-				int op = 0;
-				int inpx = 0;
 				Scanner sc2 = new Scanner(System.in);
 				String roomNumber = null;
-				while(op == 0) {
-					System.out.println("Enter the Meeting Number of the room you want to create the scenario for");
-					temp = sc.nextLine();
-					if(isNumeric(temp)) {
-						inpx = Integer.parseInt(temp);
-						System.out.println("Enter the Room Number of the room you want to create the scenario for");
-						temp = sc.nextLine();
-						if(isNumeric(temp)) {
-							roomNumber = temp;
-							RoomChangeMessage roomMsg = new RoomChangeMessage(inpx, roomNumber);
-							Object obj = (Object) roomMsg;
-							sentToServer(obj);
-							op = 1;
-						}
-						else {
-							System.out.println("Try again by entering a correct Room Number. (No letters or signs)");
-							System.out.println("Request Restarted");
-						}
-					}
-					else {
-						System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");
-					}
-				}
-
+				System.out.println("Enter the Meeting Number of the room you want to create the scenario for");
+				int inpx = 0;
+				inpx = sc.nextInt();
+				System.out.println("Enter the Room Number of the room you want to create the scenario for");
+				roomNumber = sc2.nextLine();
+				RoomChangeMessage roomMsg = new RoomChangeMessage(inpx, roomNumber);
+				Object obj = (Object) roomMsg;
+				sentToServer(obj);
 				break;
 			}
 			else if (inp == 8) 
@@ -388,12 +279,10 @@ public class ClientHandler
 				break;
 				
 			}
-
 			else
 			{
 				
 			}
-			
 		}
 	
 	}
@@ -490,97 +379,160 @@ public class ClientHandler
 		{
 			RequestMessage msg = new RequestMessage();
 			msg = (RequestMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			participants = new StringBuilder();
+			for (int i = 0; i < msg.getListOfParticipants().size(); i++) 
+			{
+			    participants.append(msg.getListOfParticipants().get(i) + " Port: " + msg.getPortListOfParticipants().get(i) + " | ");
+			}
+			
+			logger.info("Received From Client: | Request Message: | RQ: " + msg.getRQ() + " | date: " + msg.getDate() 
+			  + " | time: " + msg.getTime() + " | minimum: " + msg.getMinimum()
+			  + " | participants: " + participants + "topic: "
+					  + msg.getTopic() + "\n");
 		}
 		if(obj.getClass() == InviteMessage.class)
 		{
 			InviteMessage msg = new InviteMessage();
 			msg = (InviteMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Invite Message: | MT: " + msg.getMT() + " | Date: "
+					+ msg.getDate() +" | Time: " + msg.getTime() + " | Topic: " + msg.getTopic()
+					+ " | RequesterIP: " + msg.getRequesterIP() + " Port: " + msg.getRequesterPort() + "\n");
 		}
 		if(obj.getClass() == AcceptMessage.class)
 		{
-			AcceptMessage msg = new AcceptMessage(6);
+			AcceptMessage msg = new AcceptMessage();
 			msg = (AcceptMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Accept Message: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == RejectMessage.class)
 		{
-			RejectMessage msg = new RejectMessage(6);
+			RejectMessage msg = new RejectMessage();
 			msg = (RejectMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Reject Message: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == RoomUnavailableResponse.class)
 		{
 			RoomUnavailableResponse msg = new RoomUnavailableResponse();
 			msg = (RoomUnavailableResponse) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Room Unavailable Message: | RQ: " + msg.getRQ()
+			+ " | " + msg.getUnavailable() + "\n");
 		}
 		if(obj.getClass() == ConfirmMessage.class)
 		{
 			ConfirmMessage msg = new ConfirmMessage();
 			msg = (ConfirmMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Confirm Message: | MT: " + msg.getmTNumber() + " | Room Number: "
+					+ msg.getRoomNumber() + "\n");
 		}
 		if(obj.getClass() == CancelMessage.class)
 		{
 			CancelMessage msg = new CancelMessage();
 			msg = (CancelMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Cancel Message: | MT: " + msg.getmTNumber() + " | Reason: " + msg.getReason() + "\n");
 		}
 		if(obj.getClass() == CancelInviteMessage.class)
 		{
 			CancelInviteMessage msg = new CancelInviteMessage();
 			msg = (CancelInviteMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Cancel Message: | MT: " + msg.getmTNumber() + " | Reason: " + msg.getReason() + "\n");
 		}
 		if(obj.getClass() == PositiveResponseToRequester.class)
 		{
 			PositiveResponseToRequester msg = new PositiveResponseToRequester();
 			msg = (PositiveResponseToRequester) obj;
-			msg.print();
+			//msg.print();
+			
+			participants = new StringBuilder();
+			for (int i = 0; i < msg.getConfirmedClients().size(); i++) 
+			{
+			    participants.append(msg.getConfirmedClients().get(i) + " Port: " + msg.getPortOfConfirmedParticipants().get(i) + " | ");
+			}
+			
+			logger.info(" | Positive Response To Requester: | RQ: " + msg.getrQNumber() + " | MT: "
+					+ msg.getmTNumber() + " | Room Number: " + msg.getRoomNumber() + " | Confirmed Participants: " + participants + "topic: " + msg.getTopic() + "\n");
 		}
 		if(obj.getClass() == NegativeResponseToRequester.class)
 		{
 			NegativeResponseToRequester msg = new NegativeResponseToRequester();
 			msg = (NegativeResponseToRequester) obj;
-			msg.print();
+			//msg.print();
+			
+			participants = new StringBuilder();
+			for (int i = 0; i < msg.getConfirmedCLients().size(); i++) 
+			{
+			    participants.append(msg.getConfirmedCLients().get(i) + " Port: " + msg.getPortOfConfirmedParticipants().get(i) + " | ");
+			}
+			
+			logger.info(" | Negative Reponse To Requester: | RQ: " + msg.getRQ() + " | date: " + msg.getDate() 
+			  + " | time: " + msg.getTime() + " | minimum: " + msg.getMinimum()
+			  + " | clients: " + participants + "topic: " + msg.getTopic() + "\n");
 		}
 		if(obj.getClass() == WithdrawMessage.class)
 		{
 			WithdrawMessage msg = new WithdrawMessage();
 			msg = (WithdrawMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Withdraw Message: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == InformRequesterOfWithdrawal.class)
 		{
 			InformRequesterOfWithdrawal msg = new InformRequesterOfWithdrawal();
 			msg = (InformRequesterOfWithdrawal) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Inform Requester Of Withdrawal: | MT: " + msg.getmTNumber() + " | IP: " 
+				+ msg.getiPAddress() + "\n");
 		}
 		if(obj.getClass() == AddClient.class)
 		{
 			AddClient msg = new AddClient();
 			msg = (AddClient) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Add Client: | MT: " + msg.getmTNumber() + "\n");
 		}
 		if(obj.getClass() == InformRequesterOfAddedClient.class)
 		{
 			InformRequesterOfAddedClient msg = new InformRequesterOfAddedClient();
 			msg = (InformRequesterOfAddedClient) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Inform Requester Of Added Client: | MT: " + msg.getmTNumber() + " | IP: " 
+				+ msg.getiPAddress() + "\n");
 		}
 		if(obj.getClass() == RoomChangeMessage.class)
 		{
 			RoomChangeMessage msg = new RoomChangeMessage();
 			msg = (RoomChangeMessage) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Room Change Message: | MT: " + msg.getmTNumber() + " | Room Number: "
+				+ msg.getRoomNumber() + "\n");
 		}
 		if(obj.getClass() == CancelMessageFromRequester.class)
 		{
 			CancelMessageFromRequester msg = new CancelMessageFromRequester();
 			msg = (CancelMessageFromRequester) obj;
-			msg.print();
+			//msg.print();
+			
+			logger.info(" | Cancel Message From Requester: | MT: " + msg.getmTNumber() + "\n");
 		}
 	}
 	
@@ -593,29 +545,50 @@ public class ClientHandler
 	    return ip.matches(pattern);
 	}
 	
-	public static boolean isNumeric(String str) { 
-		  try {  
-		    Integer.parseInt(str);
-		    return true;
-		  } catch(NumberFormatException e){  
-		    return false;  
-		  }  
-		}
+	public static boolean isNumeric(String stringNum) 
+	{
+	    if (stringNum == null) 
+	    {
+	        return false;
+	    }
+	    return true;
+	}
+	
+	public static void initiateTextFile(int portNumber) {
+		 try {  
+
+		        fh = new FileHandler("/Users/Jad/Documents/Client" + portNumber + ".txt");  
+		        logger.addHandler(fh);
+		        SimpleFormatter formatter = new SimpleFormatter();  
+		        fh.setFormatter(formatter);  
+		        
+
+		    } catch (SecurityException e) {  
+		        e.printStackTrace();  
+		    } catch (IOException e) {  
+		        e.printStackTrace();  
+		    }  
+	}
 	
 	public synchronized void reading()
 	{
-		try (FileInputStream fis = new FileInputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\client"
+		try (FileInputStream fis = new FileInputStream(new File("/Users/Jad/Documents/client"
 				+ port + "BackUp.dat"));
 	             ObjectInputStream ois = new ObjectInputStream(fis)) 
 		{
 				meetingAvailability = (boolean[][]) ois.readObject();
-				port = (int) ois.readObject();
 	        	ois.close();
 	        	fis.close();
 	        } catch (IOException | ClassNotFoundException e) 
 			{
 	            //e.printStackTrace();
 	        }
+	}
+	
+	public static void deleteBackup() throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter("/Users/Jad/Documents/client" + port + "BackUp.dat");
+		pw.print("");
+		pw.close();
 	}
 	
 	//calling the runner function for testing the server
@@ -628,16 +601,13 @@ public class ClientHandler
 		int input2 = 0;
 		boolean isTrue = false;
 		
+		
 		while(!isTrue) 
 		{
 			System.out.println("Enter IP Address of Server");
 			input1 = scan.nextLine();
-			if(validateIP(input1)) {
+			
 			isTrue = validateIP(input1);
-			}
-			else {
-				System.out.println("Try again by entering a correct IP Address with format ###.###.###.### (No letters or signs)");	
-			}
 			
 		}
 		
@@ -647,25 +617,41 @@ public class ClientHandler
 		{
 			System.out.println("Enter Your Port Number");
 			temp = scan.nextLine();
-			if(isNumeric(temp)) {
+			
 			isTrue = isNumeric(temp);
-			}
-			else {
-				System.out.println("Try again by entering a correct port number. (No letters or signs)");	
-			}
+			
 		}
+		
+		/*isTrue = false;
+		
+		while(!isTrue) 
+		{
+			System.out.println("Do you want to restore your last session? Yes/No");
+			input1 = scan.nextLine();
+			
+			if(input1.contentEquals("Yes")) {
+				isTrue = true;
+				System.out.println("Session successfully restored.");
+			} else if(input1.contentEquals("No")) {
+				deleteBackup();
+				//initiateTextFile();
+				isTrue = true;
+			} else {
+				System.out.println("Invalid input!");
+			}
+			
+		}
+		
+		isTrue = false;*/
 		
 		input2 = Integer.parseInt(temp);
 		
+		initiateTextFile(input2);
 		
 		ClientHandler c1 = new ClientHandler(input1, input2);
-		if(c1.dontuse) {
-			main(args);
-			return;
-		}
 		c1.test();
 
-	    String inpAddr = InetAddress.getLocalHost().getHostAddress().toString();
+		String inpAddr = InetAddress.getLocalHost().getHostAddress().toString();
         int inpPort = input2;
         String display = new String("Client || IP Address: " + inpAddr 
         		+ " || Port Number: " + inpPort);
@@ -710,12 +696,12 @@ public class ClientHandler
 				}
 		    } 
 		});
-		c1.reading();
 		/*while(true)
 		{
 			c1.runner();
 			Thread.sleep(2000);
 		}*/
+		c1.reading();
     }
 
     

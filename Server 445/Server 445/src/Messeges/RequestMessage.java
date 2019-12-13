@@ -15,6 +15,7 @@ public class RequestMessage implements Serializable
 	private int minimum;
 	private ArrayList<InetAddress> listOfParticipants;
 	private ArrayList<Integer> portListOfParticipants;
+	private String requesterIP;
 	private String topic;
 	private int portOfRQ;
 	
@@ -28,10 +29,11 @@ public class RequestMessage implements Serializable
 		this.topic = null;
 		this.setPortListOfParticipants(new ArrayList<Integer>());
 		this.portOfRQ = 0;
+		this.requesterIP = null;
 	}
 	
 	public RequestMessage(int rQ, int date, int time, int minimum, ArrayList<InetAddress> list, String topic,
-			ArrayList<Integer> portList, int portRQ)
+			ArrayList<Integer> portList, int portRQ, String requesterIP)
 	{
 		this.rQNumber = rQ;
 		this.date = date;
@@ -41,6 +43,7 @@ public class RequestMessage implements Serializable
 		this.topic = topic;
 		this.setPortListOfParticipants(portList);
 		this.portOfRQ = portRQ;
+		this.requesterIP = requesterIP;
 	}
 	
 	public int getRQ() {
@@ -115,6 +118,14 @@ public class RequestMessage implements Serializable
 
 	public void setPortOfRQ(int portOfRQ) {
 		this.portOfRQ = portOfRQ;
+	}
+
+	public String getRequesterIP() {
+		return requesterIP;
+	}
+
+	public void setRequesterIP(String requesterIP) {
+		this.requesterIP = requesterIP;
 	}
 	
 }

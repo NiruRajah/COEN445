@@ -10,23 +10,42 @@ public class PositiveResponseToRequester implements Serializable
 	private int mTNumber;
 	private String roomNumber;
 	private ArrayList<InetAddress> confirmedParticipants;
+	private String topic;
 	private int date;
 	private int time;
+	private ArrayList<Integer> portOfConfirmedParticipants;
 	
 	public PositiveResponseToRequester()
 	{
 		
 	}
 	
-	public PositiveResponseToRequester(int rQ, int mT, String rN, ArrayList<InetAddress> confirmedClients,
-			int date, int time) 
+	public PositiveResponseToRequester(int rQ, int mT, String rN, ArrayList<InetAddress> confirmedClients, ArrayList<Integer> portOfConfirmedParticipants, String topic, int date, int time) 
 	{
 		this.rQNumber = rQ;
 		this.mTNumber = mT;
 		this.roomNumber = rN;
 		this.confirmedParticipants = confirmedClients;
+		this.topic = topic;
 		this.setDate(date);
 		this.setTime(time);
+		this.portOfConfirmedParticipants = portOfConfirmedParticipants;
+	}
+
+	public String getTopic() {
+		return topic;
+	}
+
+	public void setTopic(String topic) {
+		this.topic = topic;
+	}
+
+	public ArrayList<Integer> getPortOfConfirmedParticipants() {
+		return portOfConfirmedParticipants;
+	}
+
+	public void setPortOfConfirmedParticipants(ArrayList<Integer> portOfConfirmedParticipants) {
+		this.portOfConfirmedParticipants = portOfConfirmedParticipants;
 	}
 
 	public int getrQNumber() {
