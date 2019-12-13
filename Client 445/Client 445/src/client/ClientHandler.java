@@ -59,7 +59,6 @@ public class ClientHandler
 
 	private Client client;
 	private int port;
-	private boolean breaker;
 	private boolean[][] meetingAvailability = new boolean [8][25];
 	public boolean dontuse = false;
 	//public static ClientHandler c1;
@@ -75,7 +74,6 @@ public class ClientHandler
 		}
 		
 		this.port = inp2;
-		this.breaker = true;
 		for (int i = 1; i <= 7; i++) //set the meeting availability scheduler to all true (available)
 		{
 			for (int j = 1; j <= 24; j++)
@@ -108,6 +106,7 @@ public class ClientHandler
 				             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
 						{
 						oos.writeObject(meetingAvailability);
+						oos.writeObject(port);
 						oos.close();
 						fos.close();
 				        } catch (IOException e) 
@@ -254,7 +253,7 @@ public class ClientHandler
 						}
 						}
 						else {
-							System.out.println("Try again by entering a correct IP Address with format ###.###.###.### (No letters or signs)");	
+							System.out.println("Try again by entering a correct IP Address with format ###.###.###.### (No letters or signs) or 'next' when done");	
 						}
 					}
 					
@@ -610,6 +609,7 @@ public class ClientHandler
 	             ObjectInputStream ois = new ObjectInputStream(fis)) 
 		{
 				meetingAvailability = (boolean[][]) ois.readObject();
+				port = (int) ois.readObject();
 	        	ois.close();
 	        	fis.close();
 	        } catch (IOException | ClassNotFoundException e) 

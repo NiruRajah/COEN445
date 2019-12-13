@@ -61,6 +61,7 @@ public class ServerHandler
 					{
 					oos.writeObject(meetingsArray); 
 					oos.writeObject(room);
+					oos.writeObject(mT);
 					oos.close();
 					fos.close();
 			        } catch (IOException e) 
@@ -688,6 +689,7 @@ public class ServerHandler
 		{
 	        	meetingsArray = (ArrayList<Meetings>) ois.readObject();
 	        	room = (Room) ois.readObject();
+	        	mT = (int) ois.readObject();
 	        	ois.close();
 	        	fis.close();
 	        } catch (IOException | ClassNotFoundException e) 
