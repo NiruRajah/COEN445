@@ -39,17 +39,17 @@ public class Server implements Runnable
 		return port;
 	}
 	
-	public synchronized void send(final Packet pack) 
+	public synchronized void send(final Packet packX) 
 	{
 		send = new Thread("send_thread") 
 		{
 			public void run() 
 			{
 				DatagramPacket datagramPack = new DatagramPacket(
-						pack.getData(), 
-						pack.getData().length, 
-						pack.getAddr(), 
-						pack.getPort()
+						packX.getData(), 
+						packX.getData().length, 
+						packX.getAddr(), 
+						packX.getPort()
 				);
 				try {
 					socket.send(datagramPack);
@@ -62,7 +62,7 @@ public class Server implements Runnable
 		send.start();
 	}
 	
-	public synchronized void receive(final PacketHandler packHandler) 
+	public synchronized void receive(final PacketHandler packHandlerX) 
 	{
 		receive = new Thread("receive_thread") 
 		{
@@ -81,7 +81,7 @@ public class Server implements Runnable
 					}
 					try 
 					{
-						packHandler.process(new Packet(datagramPack.getData(), datagramPack.getAddress(), datagramPack.getPort()));
+						packHandlerX.process(new Packet(datagramPack.getData(), datagramPack.getAddress(), datagramPack.getPort()));
 					} catch (ClassNotFoundException e) 
 					{
 						e.printStackTrace();

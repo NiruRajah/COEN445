@@ -56,14 +56,14 @@ public class ServerHandler
 				
 				addParticipant(packet);
 				
-				try (FileOutputStream fos = new FileOutputStream(new File("serverBackUp.dat"));
-			             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
+				try (FileOutputStream fout = new FileOutputStream(new File("serverBackUp.dat"));
+			             ObjectOutputStream oout = new ObjectOutputStream(fout)) 
 					{
-					oos.writeObject(meetingsArray); 
-					oos.writeObject(room);
-					oos.writeObject(mT);
-					oos.close();
-					fos.close();
+					oout.writeObject(meetingsArray); 
+					oout.writeObject(room);
+					oout.writeObject(mT);
+					oout.close();
+					fout.close();
 			        } catch (IOException e) 
 					{
 			            e.printStackTrace();
@@ -716,14 +716,14 @@ public class ServerHandler
 	
 	public synchronized void reading()
 	{
-		try (FileInputStream fis = new FileInputStream(new File("serverBackUp.dat"));
-	             ObjectInputStream ois = new ObjectInputStream(fis)) 
+		try (FileInputStream finp = new FileInputStream(new File("serverBackUp.dat"));
+	             ObjectInputStream oinp = new ObjectInputStream(finp)) 
 		{
-	        	meetingsArray = (ArrayList<Meetings>) ois.readObject();
-	        	room = (Room) ois.readObject();
-	        	mT = (int) ois.readObject();
-	        	ois.close();
-	        	fis.close();
+	        	meetingsArray = (ArrayList<Meetings>) oinp.readObject();
+	        	room = (Room) oinp.readObject();
+	        	mT = (int) oinp.readObject();
+	        	oinp.close();
+	        	finp.close();
 	        } catch (IOException | ClassNotFoundException e) 
 			{
 	            //e.printStackTrace();

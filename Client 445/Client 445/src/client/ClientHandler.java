@@ -61,7 +61,6 @@ public class ClientHandler
 	private int port;
 	private boolean[][] meetingAvailability = new boolean [8][25];
 	public boolean dontuse = false;
-	//public static ClientHandler c1;
 	
 	public ClientHandler(String inp1, int inp2) throws SocketException, UnknownHostException 
 	{
@@ -101,14 +100,14 @@ public class ClientHandler
 					
 					checkForNegativeResponseToRequester(packet);
 					
-					try (FileOutputStream fos = new FileOutputStream(new File("client"
+					try (FileOutputStream fout = new FileOutputStream(new File("client"
 							+ port + "BackUp.dat"));
-				             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
+				             ObjectOutputStream oout = new ObjectOutputStream(fout)) 
 						{
-						oos.writeObject(meetingAvailability);
-						oos.writeObject(port);
-						oos.close();
-						fos.close();
+						oout.writeObject(meetingAvailability);
+						oout.writeObject(port);
+						oout.close();
+						fout.close();
 				        } catch (IOException e) 
 						{
 				            e.printStackTrace();
@@ -604,14 +603,14 @@ public class ClientHandler
 	
 	public synchronized void reading()
 	{
-		try (FileInputStream fis = new FileInputStream(new File("client"
+		try (FileInputStream finp = new FileInputStream(new File("client"
 				+ port + "BackUp.dat"));
-	             ObjectInputStream ois = new ObjectInputStream(fis)) 
+	             ObjectInputStream oinp = new ObjectInputStream(finp)) 
 		{
-				meetingAvailability = (boolean[][]) ois.readObject();
-				port = (int) ois.readObject();
-	        	ois.close();
-	        	fis.close();
+				meetingAvailability = (boolean[][]) oinp.readObject();
+				port = (int) oinp.readObject();
+	        	oinp.close();
+	        	finp.close();
 	        } catch (IOException | ClassNotFoundException e) 
 			{
 	            //e.printStackTrace();
