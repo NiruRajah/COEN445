@@ -169,14 +169,20 @@ public class ClientHandler
 				{
 					System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
 					System.out.println("Enter the day (#): ");
-					date = sc.nextInt();
-					if(date>0 && date<6) 
-					{
-						op = 1;
+					temp = sc.nextLine();
+					if(isNumeric(temp)) {
+						date = Integer.parseInt(temp);
+						if(date>0 && date<6) 
+						{
+							op = 1;
+						}
+						else {
+							System.out.println("Try again by entering a number between 1 and 5 for the date. (No letters or signs)");
+						}
 					}
 					else 
 					{
-						System.out.println("try again");
+						System.out.println("Try again by entering a number between 1 and 5 for the date. (No letters or signs)");
 					}
 				
 				}
@@ -184,15 +190,20 @@ public class ClientHandler
 				{
 					System.out.println("Open from 8H to 17H");
 					System.out.println("Enter the time: ");
-					time = sc.nextInt();
-					
-					if(time>7 && time<18) 
-					{
-						op = 9;
+					temp = sc.nextLine();
+					if(isNumeric(temp)) {
+						time = Integer.parseInt(temp);
+						if(time>7 && time<18) 
+						{
+							op = 9;
+						}
+						else {
+							System.out.println("Try again by entering a number between 8 and 17 for the time. (No letters or signs)");				
+						}
 					}
 					else 
 					{
-						System.out.println("try again");
+						System.out.println("Try again by entering a number between 8 and 17 for the time. (No letters or signs)");
 					}
 					
 				}
@@ -200,12 +211,18 @@ public class ClientHandler
 				op = 1;
 				while(op == 1) {
 				System.out.println("Enter the minimum number of participants needed for the meeting");
-				minimum = sc.nextInt();
-				if(minimum < 1) {
-					System.out.println("try again");
+				temp = sc.nextLine();
+				if(isNumeric(temp)) {
+					minimum = Integer.parseInt(temp);
+					if(minimum < 1) {
+						System.out.println("Try again by entering a number bigger than 0 for the minimum number of participants. (No letters or signs)");
+					}
+					else {
+						op = 0;
+					}
 				}
 				else {
-					op = 0;
+					System.out.println("Try again by entering a number bigger than 0 for the minimum number of participants. (No letters or signs)");
 				}
 				
 				}
@@ -214,22 +231,30 @@ public class ClientHandler
 				String ip = "false";
 				op = 1;
 				int count = 0;
+				int portX = 0;
 				while(op == 1)
 				{
-					System.out.println("Enter all the attending participant's ip addresses and type in 'next' when done");
+					System.out.println("Enter all the attending participant's IP Addresses and type in 'next' when done");
 					ip = sc1.nextLine();
 					if(!(ip.equals("next")))
 					{
 						if(validateIP(ip)) {
 						count++;
 						System.out.println("added: " + InetAddress.getByName(ip));
-						list1.add(InetAddress.getByName(ip));
-						System.out.println("Enter the port number of attending participant");
-						int portX = sc.nextInt();
-						list2.add(portX);
+						System.out.println("Enter the Port Number of attending participant");
+						temp = sc1.nextLine();
+						if(isNumeric(temp)) {
+							portX = Integer.parseInt(temp);
+							list2.add(portX);
+							list1.add(InetAddress.getByName(ip));
 						}
 						else {
-							System.out.println("try again");
+							System.out.println("Try again by entering a correct Port Number. (No letters or signs)");	
+							System.out.println("removed: " + InetAddress.getByName(ip));
+						}
+						}
+						else {
+							System.out.println("Try again by entering a correct IP Address with format ###.###.###.### (No letters or signs)");	
 						}
 					}
 					
@@ -238,7 +263,7 @@ public class ClientHandler
 							op = 0;
 						}
 						else {
-							System.out.println("Need to add "+(minimum-count)+" more participants");
+							System.out.println("Need to add "+(minimum-count)+" more participants to fill up minimum requirements");
 						}
 					}
 					
@@ -276,7 +301,7 @@ public class ClientHandler
 					op = 1;
 				}
 				else {
-					System.out.println("try again");
+					System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");	
 				}
 				
 				}
@@ -298,7 +323,7 @@ public class ClientHandler
 						op = 1;
 					}
 					else {
-						System.out.println("try again");
+						System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");
 					}
 				}
 
@@ -320,7 +345,7 @@ public class ClientHandler
 						op = 1;
 					}
 					else {
-						System.out.println("try again");
+						System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");
 					}
 				}
 
@@ -348,11 +373,12 @@ public class ClientHandler
 							op = 1;
 						}
 						else {
-							System.out.println("try again");
+							System.out.println("Try again by entering a correct Room Number. (No letters or signs)");
+							System.out.println("Request Restarted");
 						}
 					}
 					else {
-						System.out.println("try again");
+						System.out.println("Try again by entering a correct Meeting Number. (No letters or signs)");
 					}
 				}
 
@@ -363,12 +389,12 @@ public class ClientHandler
 				break;
 				
 			}
+
 			else
 			{
 				
 			}
 			
-			break;
 		}
 	
 	}
@@ -606,8 +632,12 @@ public class ClientHandler
 		{
 			System.out.println("Enter IP Address of Server");
 			input1 = scan.nextLine();
-			
+			if(validateIP(input1)) {
 			isTrue = validateIP(input1);
+			}
+			else {
+				System.out.println("Try again by entering a correct IP Address with format ###.###.###.### (No letters or signs)");	
+			}
 			
 		}
 		
@@ -617,9 +647,12 @@ public class ClientHandler
 		{
 			System.out.println("Enter Your Port Number");
 			temp = scan.nextLine();
-			
+			if(isNumeric(temp)) {
 			isTrue = isNumeric(temp);
-			
+			}
+			else {
+				System.out.println("Try again by entering a correct port number. (No letters or signs)");	
+			}
 		}
 		
 		input2 = Integer.parseInt(temp);
