@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.net.BindException;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -62,18 +59,13 @@ public class ClientHandler
 	public boolean dontuse = false;
 	//public static ClientHandler c1;
 	
-	
 	public ClientHandler(String inp1, int inp2) throws SocketException, UnknownHostException 
 	{
-		
-		
 		this.client = new Client(inp1, inp2);
-		
 		if(client.dontuse) {
 			dontuse = true;
 			return;
 		}
-		
 		this.port = inp2;
 		this.breaker = true;
 		for (int i = 1; i <= 7; i++) //set the meeting availability scheduler to all true (available)
@@ -183,18 +175,8 @@ public class ClientHandler
 					}
 					
 				}
-				op = 0;
-				while(op == 0) {
-					System.out.println("Enter the minimum number of participants needed for the meeting");
-					minimum = sc.nextInt();
-					if(minimum>1) {
-						System.out.println("Needs to be at least 1");
-					}
-					else {
-						op = 1;
-					}
-				}
-
+				System.out.println("Enter the minimum number of participants needed for the meeting");
+				minimum = sc.nextInt();
 				Scanner sc1 = new Scanner(System.in);
 				String ip = "false";
 				while(!(ip.equals("next")))
@@ -482,14 +464,15 @@ public class ClientHandler
 	    return ip.matches(pattern);
 	}
 	
-	public static boolean isNumeric(String str) { 
-		  try {  
-		    Integer.parseInt(str);
-		    return true;
-		  } catch(NumberFormatException e){  
-		    return false;  
-		  }  
-		}
+	public static boolean isNumeric(String stringNum) 
+	{
+	    if (stringNum == null) 
+	    {
+	        return false;
+	    }
+	    return true;
+	}
+	
 	
 	//calling the runner function for testing the server
 	public static void main(String args[]) throws IOException, InterruptedException 
@@ -500,6 +483,7 @@ public class ClientHandler
 		String temp = "";
 		int input2 = 0;
 		boolean isTrue = false;
+		
 		while(!isTrue) 
 		{
 			System.out.println("Enter IP Address of Server");
@@ -521,7 +505,8 @@ public class ClientHandler
 		}
 		
 		input2 = Integer.parseInt(temp);
-
+		
+		
 		ClientHandler c1 = new ClientHandler(input1, input2);
 		if(c1.dontuse) {
 			main(args);
@@ -529,8 +514,6 @@ public class ClientHandler
 		}
 		
 		c1.test();
-
-		
 
 	    String inpAddr = input1;
         int inpPort = input2;
@@ -557,14 +540,15 @@ public class ClientHandler
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-        
+		
 		button.addActionListener(new ActionListener() 
 		{ 
 		    public void actionPerformed(ActionEvent e) 
 		    {
+		    	  
 		        try 
 		        {
-		        	c1.runner();
+					c1.runner();
 				} catch (IOException e1) 
 		        {
 					// TODO Auto-generated catch block

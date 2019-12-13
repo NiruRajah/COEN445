@@ -670,7 +670,7 @@ public class ServerHandler
     {
 		Scanner scan = new Scanner(System.in);
 		ServerHandler s1 = new ServerHandler();
-		s1.test(2300);
+		s1.test(1337);
     }
 
 	

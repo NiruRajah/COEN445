@@ -1,7 +1,6 @@
 package client;
 
 import java.io.IOException;
-import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -16,7 +15,7 @@ import data.PacketHandler;
 public class Client implements Runnable 
 {
 	
-	private Connection connection = null;
+	private Connection connection;
 	private boolean running;
 	private DatagramSocket socket;
 	private Thread process, send, receive;
@@ -24,7 +23,6 @@ public class Client implements Runnable
 	
 	public Client(String address, int port) throws SocketException, UnknownHostException 
 	{
-
 		try {
 			socket = new DatagramSocket(port);
 		}
@@ -39,7 +37,7 @@ public class Client implements Runnable
 		{
 			connection = new Connection(socket, InetAddress.getByName(address), port);
 			this.init();
-		} catch (SocketException | UnknownHostException e ) 
+		} catch (SocketException | UnknownHostException e) 
 		{
 			e.printStackTrace();
 		}
