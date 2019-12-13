@@ -28,7 +28,7 @@ public class ServerHandler
 		mT = 0;
 		server = new Server(port);
 		room = new Room();
-		server.receive(new PacketHandler() 
+		server.receive(new PacketHandler()
 		{
 
 			@Override
@@ -668,9 +668,8 @@ public class ServerHandler
 	//calls the test function
 	public static void main(String args[]) throws IOException, InterruptedException 
     {
-		Scanner scan = new Scanner(System.in);
 		ServerHandler s1 = new ServerHandler();
-		s1.test(2300);
+		s1.test(1337);
     }
 
 	
