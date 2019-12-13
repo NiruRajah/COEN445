@@ -101,7 +101,7 @@ public class ClientHandler
 					
 					checkForNegativeResponseToRequester(packet);
 					
-					try (FileOutputStream fos = new FileOutputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\client"
+					try (FileOutputStream fos = new FileOutputStream(new File("client"
 							+ port + "BackUp.dat"));
 				             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
 						{
@@ -166,7 +166,7 @@ public class ClientHandler
 				int op = 0;
 				while(op == 0) 
 				{
-					System.out.println("1. Nov 4\t2. Nov 5\t3. Nov 6\t4. Nov 7\t5. Nov 8");
+					System.out.println("1. Dec 14\t2. Dec 15\t3. Dec 16\t4. Dec 17\t5. Dec18");
 					System.out.println("Enter the day (#): ");
 					temp = sc.nextLine();
 					if(isNumeric(temp)) {
@@ -187,22 +187,22 @@ public class ClientHandler
 				}
 				while(op == 1) 
 				{
-					System.out.println("Open from 8H to 17H");
+					System.out.println("Open from 1H to 9H");
 					System.out.println("Enter the time: ");
 					temp = sc.nextLine();
 					if(isNumeric(temp)) {
 						time = Integer.parseInt(temp);
-						if(time>7 && time<18) 
+						if(time>0 && time<10) 
 						{
 							op = 9;
 						}
 						else {
-							System.out.println("Try again by entering a number between 8 and 17 for the time. (No letters or signs)");				
+							System.out.println("Try again by entering a number between 1 and 9 for the time. (No letters or signs)");				
 						}
 					}
 					else 
 					{
-						System.out.println("Try again by entering a number between 8 and 17 for the time. (No letters or signs)");
+						System.out.println("Try again by entering a number between 1 and 9 for the time. (No letters or signs)");
 					}
 					
 				}
@@ -604,7 +604,7 @@ public class ClientHandler
 	
 	public synchronized void reading()
 	{
-		try (FileInputStream fis = new FileInputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\client"
+		try (FileInputStream fis = new FileInputStream(new File("client"
 				+ port + "BackUp.dat"));
 	             ObjectInputStream ois = new ObjectInputStream(fis)) 
 		{

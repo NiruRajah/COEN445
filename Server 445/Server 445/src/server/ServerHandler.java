@@ -56,7 +56,7 @@ public class ServerHandler
 				
 				addParticipant(packet);
 				
-				try (FileOutputStream fos = new FileOutputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\serverBackUp.dat"));
+				try (FileOutputStream fos = new FileOutputStream(new File("serverBackUp.dat"));
 			             ObjectOutputStream oos = new ObjectOutputStream(fos)) 
 					{
 					oos.writeObject(meetingsArray); 
@@ -72,6 +72,21 @@ public class ServerHandler
 		});
 	}
 	
+	public synchronized boolean clientExistsInDeclinedClients(int index, Packet packet)
+	{
+			for(int i = 0; i < meetingsArray.get(index).getDeclinedClients().size(); i++)
+			{
+				if(meetingsArray.get(index).getDeclinedClients().get(i).equals(packet.getAddr()))
+				{
+					return true;
+				}
+			}
+		
+		
+		return false;
+		
+	}
+	
 	//part 2.4 requirements logic for adding participants
 	public synchronized void addParticipant(Packet packet) throws ClassNotFoundException, IOException
 	{
@@ -85,7 +100,8 @@ public class ServerHandler
 			for (int i = 0; i < meetingsArray.size(); i++)
 			{
 				if(addMsg.getmTNumber() == meetingsArray.get(i).getmT() &&
-						!packet.getAddr().equals(meetingsArray.get(i).getRequester()))
+						!packet.getAddr().equals(meetingsArray.get(i).getRequester())
+						&& clientExistsInDeclinedClients(i, packet))
 				{
 					invalidEntryChecker = false;
 					for (int j = 0; j < meetingsArray.get(i).getDeclinedClients().size(); j++)
@@ -148,7 +164,8 @@ public class ServerHandler
 			for (int i = 0; i < meetingsArray.size(); i++)
 			{
 				if(withdrawMsg.getmTNumber() == meetingsArray.get(i).getmT()
-						&& !packet.getAddr().equals(meetingsArray.get(i).getRequester()))
+						&& !packet.getAddr().equals(meetingsArray.get(i).getRequester())
+						&& clientExistsInConfirmedClients(i, packet))
 				{
 
 					//The below logical conditions are under the assumption that when a client withdraws
@@ -270,6 +287,19 @@ public class ServerHandler
 			
 	}
 	
+	public synchronized boolean clientExistsInConfirmedClients(int index, Packet packet)
+	{
+			for(int i = 0; i < meetingsArray.get(index).getConfirmedClients().size(); i++)
+			{
+				if(meetingsArray.get(index).getConfirmedClients().get(i).equals(packet.getAddr()))
+				{
+					return true;
+				}
+			}
+		return false;
+		
+	}
+	
 	//part 2.5 requirements logic for room change
 	public synchronized void roomChange(Packet packet) throws ClassNotFoundException, IOException
 	{
@@ -282,7 +312,8 @@ public class ServerHandler
 			for (int i = 0; i < meetingsArray.size(); i++)
 			{
 				if(roomMsg.getRoomNumber().equals(meetingsArray.get(i).getRoomNumber())
-						&& roomMsg.getmTNumber() == meetingsArray.get(i).getmT())
+						&& roomMsg.getmTNumber() == meetingsArray.get(i).getmT()
+						&& clientExistsInConfirmedClients(i, packet))
 				{
 					invalid = false;
 					if(room.checkRoomIsFree(meetingsArray.get(i).getDate(), meetingsArray.get(i).getTime()))
@@ -551,6 +582,7 @@ public class ServerHandler
 		}
 		
 	}
+
 	
 	//send messages to client
 	public synchronized void sendToClient(Packet packet)
@@ -684,7 +716,7 @@ public class ServerHandler
 	
 	public synchronized void reading()
 	{
-		try (FileInputStream fis = new FileInputStream(new File("C:\\Users\\Nirusan\\Documents\\445 proj v3.0\\serverBackUp.dat"));
+		try (FileInputStream fis = new FileInputStream(new File("serverBackUp.dat"));
 	             ObjectInputStream ois = new ObjectInputStream(fis)) 
 		{
 	        	meetingsArray = (ArrayList<Meetings>) ois.readObject();
